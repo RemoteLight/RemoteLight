@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 abstract class Config(private val loader: ConfigLoader): AutoCloseable {
 
-    private val propertyMap = HashMap<String, Property>()
+    private val propertyMap = HashMap<String, Property<*>>()
     private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
@@ -25,11 +25,11 @@ abstract class Config(private val loader: ConfigLoader): AutoCloseable {
         loader.storeProperties(propertyMap.toPropertyList())
     }
 
-    private fun HashMap<String, Property>.toPropertyList(): List<Property> {
+    private fun HashMap<String, Property<*>>.toPropertyList(): List<Property<*>> {
         return this.map { entry -> entry.value }
     }
 
-    private fun List<Property>.toPropertyMap(): Map<String, Property> {
+    private fun List<Property<*>>.toPropertyMap(): Map<String, Property<*>> {
         return this.associateBy { property -> property.id }
     }
 
@@ -40,9 +40,13 @@ abstract class Config(private val loader: ConfigLoader): AutoCloseable {
     }
 
 
-    fun getProperty(id: String) = propertyMap[id]
+    fun <T> getProperty(id: String): Property<T>? = propertyMap[id] as? Property<T>?
 
-    fun addProperty(property: Property) = propertyMap.put(property.id, property).also { notifyDataChanged() }
+    fun <T> addProperty(property: Property<T>): Property<T> {
+        val existing = propertyMap.put(property.id, property)
+        notifyDataChanged()
+        return (existing?: property) as Property<T>
+    }
 
     fun removeProperty(id: String) = propertyMap.remove(id)
 
