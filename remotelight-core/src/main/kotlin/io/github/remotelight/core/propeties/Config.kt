@@ -2,7 +2,7 @@ package io.github.remotelight.core.propeties
 
 import io.github.remotelight.core.propeties.loader.ConfigLoader
 
-abstract class Configuration(private val loader: ConfigLoader) {
+abstract class Config(private val loader: ConfigLoader) {
 
     private val propertyMap = HashMap<String, Property>()
 

@@ -1,13 +1,19 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
     id 'java'
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'com.beust:klaxon:5.5'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation "io.insert-koin:koin-core:$koin_version"
+    implementation "org.tinylog:tinylog-api-kotlin:$tinylogVersion"
+    implementation "org.tinylog:tinylog-impl:$tinylogVersion"
+
+    // Testing
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation "io.insert-koin:koin-test-junit5:$koin_version"
 }
 
 test {
