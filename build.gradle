@@ -1,0 +1,12 @@
+group 'io.github.remotelight'
+version '1.0-SNAPSHOT'
+
+allprojects {
+    ext {
+        kotlinVersion = "1.5.10"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}

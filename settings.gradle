@@ -1,0 +1,3 @@
+rootProject.name = 'remotelight'
+include 'remotelight-core', 'remotelight-desktop'
+
