@@ -4,8 +4,9 @@ plugins {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'com.beust:klaxon:5.5'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "com.beust:klaxon:$klaxonVersion"
     implementation "io.insert-koin:koin-core:$koin_version"
     implementation "org.tinylog:tinylog-api-kotlin:$tinylogVersion"
     implementation "org.tinylog:tinylog-impl:$tinylogVersion"

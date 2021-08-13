@@ -3,6 +3,7 @@ package io.github.remotelight.core.propeties.loader
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
+import com.beust.klaxon.json
 import io.github.remotelight.core.RemoteLightCore
 import io.github.remotelight.core.propeties.Property
 import java.io.File
@@ -21,7 +22,8 @@ class JsonConfigLoader(private val file: File): ConfigLoader {
         val obj = JsonObject()
         obj["version"] = RemoteLightCore.VERSION
         obj["properties"] = properties
-        val jsonString = obj.toJsonString(prettyPrint = true)
+        val objString = obj.toJsonString()
+        val jsonString = (Parser.default().parse(StringBuilder(objString)) as JsonObject).toJsonString(true)
         file.writeText(jsonString)
     }
 
