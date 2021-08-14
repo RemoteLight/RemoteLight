@@ -1,8 +1,9 @@
-package io.github.remotelight.core.propeties.loader
+package io.github.remotelight.core.config.loader
 
-import io.github.remotelight.core.propeties.Property
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Assumptions.*
+import io.github.remotelight.core.config.Property
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -31,7 +32,6 @@ internal class JsonConfigLoaderTest {
         assertTrue(file.isFile)
         // load properties from file to validate stored data
         val loadedProperties = configLoader.loadProperties()
-        println("Loaded properties:")
         assertEquals(testProperties.size, loadedProperties.size)
         assertEquals(testProperties, loadedProperties)
     }

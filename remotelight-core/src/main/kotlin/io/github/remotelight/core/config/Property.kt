@@ -1,4 +1,4 @@
-package io.github.remotelight.core.propeties
+package io.github.remotelight.core.config
 
 import com.beust.klaxon.Json
 import kotlin.properties.Delegates
@@ -7,7 +7,7 @@ import kotlin.reflect.KProperty
 
 typealias Observer = (Any?) -> Unit
 
-data class Property<T>(val id: String, private var _data: T): ReadWriteProperty<Config, T> {
+open class Property<T>(val id: String, data: T): ReadWriteProperty<Config, T> {
 
     /**
      * Observers added to this list will be notified about data changes.
@@ -15,8 +15,7 @@ data class Property<T>(val id: String, private var _data: T): ReadWriteProperty<
     @Json(ignored = true)
     val dataObservers = mutableListOf<Observer>()
 
-    var data: T by Delegates.observable(_data) { _, _, new ->
-        _data = new
+    var data: T by Delegates.observable(data) { _, _, new ->
         dataObservers.forEach { it(new) }
     }
 
@@ -41,5 +40,28 @@ data class Property<T>(val id: String, private var _data: T): ReadWriteProperty<
             thisRef.addProperty(this)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Property<*>
+
+        if (id != other.id) return false
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (data?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "Property(id='$id', data=$data, dataObservers=$dataObservers)"
+    }
+
 
 }
