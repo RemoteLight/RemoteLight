@@ -5,13 +5,13 @@ import io.github.remotelight.core.di.Modules
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.koin.test.KoinTest
+import org.koin.test.junit5.AutoCloseKoinTest
 import org.koin.test.junit5.KoinTestExtension
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-internal class ConfigTest: KoinTest {
+internal class ConfigTest: AutoCloseKoinTest() {
 
     @JvmField
     @RegisterExtension

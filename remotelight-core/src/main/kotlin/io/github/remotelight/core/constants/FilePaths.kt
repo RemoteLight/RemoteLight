@@ -20,6 +20,9 @@ object FilePaths {
     val GLOBAL_CONFIG_PATH
         get() = ROOT_PATH.separate(GLOBAL_CONFIG_NAME)
 
+    val LOG_FILE_PATH
+        get() = ROOT_PATH.separate("logs")
+
     /**
      * Verifies that [RemoteLightCore] is not initialized. If so, an [IllegalStateException] will be thrown.
      */
@@ -29,7 +32,7 @@ object FilePaths {
         return value
     }
 
-    private fun String.separate(subPath: String): String = "${this}${File.separator}${subPath}"
+    fun String.separate(subPath: String): String = "${this}${File.separator}${subPath}"
 
     fun String.toFile() = File(this)
 

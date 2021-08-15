@@ -1,6 +1,7 @@
 package io.github.remotelight.core
 
 import io.github.remotelight.core.di.Modules
+import io.github.remotelight.core.utils.TinylogConfiguration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
@@ -8,7 +9,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.tinylog.kotlin.Logger
+import org.tinylog.provider.ProviderRegistry
+import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
 
@@ -21,9 +25,16 @@ class RemoteLightCore: KoinComponent {
             private set
     }
 
+    private val shutdownHook: Thread = thread(start = false, name = "Shutdown Thread") { destroy() }
+
     init {
+        if(isInitialized)
+            throw IllegalStateException("RemoteLightCore is already initialized.")
         isInitialized = true
+        TinylogConfiguration.applyConfiguration()
         initKoin()
+        Runtime.getRuntime().addShutdownHook(shutdownHook)
+        Runtime.getRuntime().removeShutdownHook(shutdownHook)
         Logger.info("Initialized RemoteLightCore version $VERSION")
     }
 
@@ -49,6 +60,15 @@ class RemoteLightCore: KoinComponent {
                     }
                 }
             }
+
+            stopKoin()
+            ProviderRegistry.getLoggingProvider().shutdown()
+            isInitialized = false
+        }
+
+        // destroy function was not run from shutdown hook, remove the hook
+        if(Thread.currentThread().id != shutdownHook.id) {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook)
         }
     }
 
