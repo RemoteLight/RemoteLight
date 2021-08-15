@@ -12,6 +12,6 @@ object GlobalConfig: Config(), KoinComponent {
         return loader
     }
 
-    val test: String by Property("test", "Test value").also { println("prop added") }
+    val test: String by Property("test", "Test value")
 
 }

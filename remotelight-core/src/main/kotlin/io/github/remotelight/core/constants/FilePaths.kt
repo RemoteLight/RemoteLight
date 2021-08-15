@@ -1,4 +1,4 @@
-package io.github.remotelight.core.config.constants
+package io.github.remotelight.core.constants
 
 import io.github.remotelight.core.RemoteLightCore
 import java.io.File

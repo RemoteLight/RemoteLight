@@ -1,8 +1,8 @@
 package io.github.remotelight.core.di
 
-import io.github.remotelight.core.config.constants.FilePaths
-import io.github.remotelight.core.config.constants.FilePaths.mkdirsParents
-import io.github.remotelight.core.config.constants.FilePaths.toFile
+import io.github.remotelight.core.constants.FilePaths
+import io.github.remotelight.core.constants.FilePaths.mkdirsParents
+import io.github.remotelight.core.constants.FilePaths.toFile
 import io.github.remotelight.core.config.loader.ConfigLoader
 import io.github.remotelight.core.config.loader.JsonConfigLoader
 import kotlinx.coroutines.Job

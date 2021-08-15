@@ -5,7 +5,16 @@ import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-typealias Observer = (Any?) -> Unit
+typealias Observer<T> = (T, T) -> Unit
+
+fun <T> Property<T>.observeBoth(observer: Observer<T>): Observer<T> {
+    dataObservers.add(observer)
+    return observer
+}
+
+fun <T> Property<T>.observe(observer: (T) -> Unit): Observer<T> {
+    return observeBoth { _, new -> observer(new) }
+}
 
 open class Property<T>(val id: String, data: T): ReadWriteProperty<Config, T> {
 
@@ -13,10 +22,10 @@ open class Property<T>(val id: String, data: T): ReadWriteProperty<Config, T> {
      * Observers added to this list will be notified about data changes.
      */
     @Json(ignored = true)
-    val dataObservers = mutableListOf<Observer>()
+    val dataObservers = mutableListOf<Observer<T>>()
 
-    var data: T by Delegates.observable(data) { _, _, new ->
-        dataObservers.forEach { it(new) }
+    var data: T by Delegates.observable(data) { _, old, new ->
+        dataObservers.forEach { it(old, new) }
     }
 
     operator fun provideDelegate(thisRef: Config, property: KProperty<*>): ReadWriteProperty<Config, T> {

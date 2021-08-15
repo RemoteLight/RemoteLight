@@ -12,11 +12,9 @@ internal class PropertyTest {
         assertEquals("initial", property.data)
         // set value to this variable first before updating the property in order that the Observer can be tested
         var newValue = "test1"
-        val observer: (Any?) -> Unit = {
-            println("changed to $it")
+        val observer = property.observe {
             assertEquals(newValue, it)
         }
-        property.dataObservers.add(observer)
         assertEquals(1, property.dataObservers.size)
 
         property.data = newValue

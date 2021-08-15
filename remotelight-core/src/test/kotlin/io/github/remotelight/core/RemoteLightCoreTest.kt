@@ -1,8 +1,8 @@
 package io.github.remotelight.core
 
 import io.github.remotelight.core.config.GlobalConfig
-import io.github.remotelight.core.config.constants.FilePaths
 import io.github.remotelight.core.config.loader.ConfigLoader
+import io.github.remotelight.core.constants.FilePaths
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll

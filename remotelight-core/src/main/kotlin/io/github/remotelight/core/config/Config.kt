@@ -41,7 +41,6 @@ abstract class Config: KoinComponent {
 
     private fun notifyDataChanged() {
         scope.launch {
-            println(coroutineContext)
             storeProperties()
         }
     }
@@ -50,7 +49,7 @@ abstract class Config: KoinComponent {
     fun <T> getProperty(id: String): Property<T>? = propertyMap[id] as? Property<T>?
 
     fun <T> addProperty(property: Property<T>): Property<T> {
-        println("Added property $property")
+        Logger.debug("Added property $property")
         val existing = propertyMap.put(property.id, property)
         notifyDataChanged()
         return (existing?: property) as Property<T>
