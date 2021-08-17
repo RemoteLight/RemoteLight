@@ -7,10 +7,17 @@ import org.koin.core.component.inject
 import org.tinylog.kotlin.Logger
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * A config class manages multiple properties.
+ * The inheriting class must specify a [ConfigLoader] with which the properties are loaded and saved.
+ * @sample GlobalConfig for a possible implementation
+ */
 abstract class Config: KoinComponent {
 
     private val propertyMap = HashMap<String, Property<*>>()
+    // global application coroutine context
     private val coroutineContext: CoroutineContext by inject()
+    // coroutine scope is used for launching the store task in a separate coroutine
     private val scope = CoroutineScope(coroutineContext + Dispatchers.IO)
 
     init {
@@ -19,6 +26,10 @@ abstract class Config: KoinComponent {
 
     abstract fun getConfigLoader(): ConfigLoader
 
+    /**
+     * Loads the properties using the [ConfigLoader] specified by [getConfigLoader].
+     * All previously contained properties will be removed.
+     */
     fun loadProperties() {
         val properties = getConfigLoader().loadProperties()
         propertyMap.clear()

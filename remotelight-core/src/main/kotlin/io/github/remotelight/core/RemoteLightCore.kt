@@ -15,7 +15,6 @@ import org.tinylog.provider.ProviderRegistry
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
-
 class RemoteLightCore: KoinComponent {
 
     companion object {
@@ -34,7 +33,6 @@ class RemoteLightCore: KoinComponent {
         TinylogConfiguration.applyConfiguration()
         initKoin()
         Runtime.getRuntime().addShutdownHook(shutdownHook)
-        Runtime.getRuntime().removeShutdownHook(shutdownHook)
         Logger.info("Initialized RemoteLightCore version $VERSION")
     }
 
@@ -44,31 +42,45 @@ class RemoteLightCore: KoinComponent {
         }
     }
 
+    /**
+     * Destroy this [RemoteLightCore] instance.
+     * It will release close used dependencies and cancel all jobs that were started
+     * using the shared coroutine context.
+     */
     fun destroy() {
-        val coroutineContext: CoroutineContext = get()
         runBlocking {
-            coroutineContext[Job]?.apply {
-                if(!isCompleted) {
-                    // if the background operation is not finished after 10 sec, it will be terminated
-                    val timeExceeded = withTimeoutOrNull(10_000L) {
-                        Logger.info("Waiting for background job to complete...")
-                        cancelAndJoin()
-                        true
-                    }
-                    if(timeExceeded != true) {
-                        Logger.warn("Timeout exceeded, background job was terminated! Data may not have been saved in time.")
-                    }
-                }
-            }
+            cancelCoroutineJobs()
 
             stopKoin()
-            ProviderRegistry.getLoggingProvider().shutdown()
+            ProviderRegistry.getLoggingProvider().shutdown() // shutdown tinylog
             isInitialized = false
         }
 
         // destroy function was not run from shutdown hook, remove the hook
         if(Thread.currentThread().id != shutdownHook.id) {
             Runtime.getRuntime().removeShutdownHook(shutdownHook)
+        }
+    }
+
+    /**
+     * Cancels jobs that were started using the shared coroutine context.
+     * It will wait until the child jobs were finished, but not longer than
+     * the defined timeout.
+     */
+    private suspend fun cancelCoroutineJobs(timeout: Long = 10_000L) {
+        val coroutineContext: CoroutineContext = get()
+        coroutineContext[Job]?.apply {
+            if (!isCompleted) {
+                // if the background operation is not finished after the timeout, it will be terminated
+                val timeExceeded = withTimeoutOrNull(timeout) {
+                    Logger.info("Waiting for background job to complete...")
+                    cancelAndJoin()
+                    true
+                }
+                if (timeExceeded != true) {
+                    Logger.warn("Timeout exceeded, background job was terminated! Data may not have been saved in time.")
+                }
+            }
         }
     }
 

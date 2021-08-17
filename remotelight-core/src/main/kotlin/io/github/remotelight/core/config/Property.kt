@@ -7,11 +7,17 @@ import kotlin.reflect.KProperty
 
 typealias Observer<T> = (T, T) -> Unit
 
+/**
+ * Observe the data of the property by getting the old and new data value.
+ */
 fun <T> Property<T>.observeBoth(observer: Observer<T>): Observer<T> {
     dataObservers.add(observer)
     return observer
 }
 
+/**
+ * Observe the data of the property by getting the new data value.
+ */
 fun <T> Property<T>.observe(observer: (T) -> Unit): Observer<T> {
     return observeBoth { _, new -> observer(new) }
 }
