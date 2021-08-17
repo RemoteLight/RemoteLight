@@ -2,14 +2,12 @@ package io.github.remotelight.core.config
 
 import io.github.remotelight.core.config.loader.ConfigLoader
 import io.github.remotelight.core.di.Modules
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.koin.test.junit5.AutoCloseKoinTest
 import org.koin.test.junit5.KoinTestExtension
 import kotlin.random.Random
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 internal class ConfigTest: AutoCloseKoinTest() {
 
@@ -36,6 +34,27 @@ internal class ConfigTest: AutoCloseKoinTest() {
         assertNotEquals("-", testConfig.getProperty<String>("test")?.data)
 
         testConfig.cancelAndWait()
+    }
+
+    @Test
+    fun addRemoveProperty() {
+        val config = object : Config() {
+            override fun getConfigLoader() = TestConfigLoader()
+        }
+        val existingProp = config.addProperty(Property("test", "default"))
+        assertEquals("last", existingProp.data)
+        assertEquals("last", config.getProperty<String>("test")?.data)
+        val newProp = config.addProperty(Property("new", "default data"))
+        assertEquals("default data", newProp.data)
+        assertEquals("default data", config.getProperty<String>("new")?.data)
+        assertEquals("fallback data", config.getData("not.exist", "fallback data"))
+        assertEquals("default data", config.getData("new", "fallback"))
+
+        val removedNew = config.removeProperty(newProp.id)
+        assertEquals(newProp, removedNew)
+        assertFalse(config.hasProperty(newProp.id))
+        assertNull(config.getProperty<String>(newProp.id))
+        assertEquals("fallback", config.getData(newProp.id, "fallback"))
     }
 
 }

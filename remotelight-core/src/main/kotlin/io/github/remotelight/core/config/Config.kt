@@ -48,11 +48,17 @@ abstract class Config: KoinComponent {
 
     fun <T> getProperty(id: String): Property<T>? = propertyMap[id] as? Property<T>?
 
+    fun <T> getData(id: String, fallback: T? = null): T? = getProperty<T>(id)?.data?: fallback
+
     fun <T> addProperty(property: Property<T>): Property<T> {
+        if(hasProperty(property.id)) {
+            // return existing property and do not overwrite it
+            return getProperty<T>(property.id)?: property
+        }
+        val added = propertyMap.put(property.id, property)
         Logger.debug("Added property $property")
-        val existing = propertyMap.put(property.id, property)
         notifyDataChanged()
-        return (existing?: property) as Property<T>
+        return (added?: property) as Property<T>
     }
 
     fun removeProperty(id: String) = propertyMap.remove(id)
