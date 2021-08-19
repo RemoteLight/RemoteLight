@@ -1,26 +1,21 @@
 package io.github.remotelight.core.config
 
 import com.beust.klaxon.Json
+import io.github.remotelight.core.utils.reactive.Observer
+import io.github.remotelight.core.utils.reactive.ObserverList
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-typealias Observer<T> = (T, T) -> Unit
-
 /**
  * Observe the data of the property by getting the old and new data value.
  */
-fun <T> Property<T>.observeBoth(observer: Observer<T>): Observer<T> {
-    dataObservers.add(observer)
-    return observer
-}
+fun <T> Property<T>.observeBoth(observer: Observer<T>) = this.dataObservers.observe(observer)
 
 /**
  * Observe the data of the property by getting the new data value.
  */
-fun <T> Property<T>.observe(observer: (T) -> Unit): Observer<T> {
-    return observeBoth { _, new -> observer(new) }
-}
+fun <T> Property<T>.observe(observer: (T) -> Unit) = this.dataObservers.observe(observer)
 
 open class Property<T>(val id: String, data: T): ReadWriteProperty<Config, T> {
 
@@ -28,10 +23,10 @@ open class Property<T>(val id: String, data: T): ReadWriteProperty<Config, T> {
      * Observers added to this list will be notified about data changes.
      */
     @Json(ignored = true)
-    val dataObservers = mutableListOf<Observer<T>>()
+    val dataObservers = ObserverList<T>()
 
     var data: T by Delegates.observable(data) { _, old, new ->
-        dataObservers.forEach { it(old, new) }
+        dataObservers.notify(old, new)
     }
 
     operator fun provideDelegate(thisRef: Config, property: KProperty<*>): ReadWriteProperty<Config, T> {
