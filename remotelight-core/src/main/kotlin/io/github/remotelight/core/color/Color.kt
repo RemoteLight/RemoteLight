@@ -18,7 +18,7 @@ data class Color(val rgbw: Int) {
         g: Int,
         b: Int,
         w: Int = 0
-    ) : this(((w and 0xFF) shl 24) or ((r and 0xFF) shl 16) or ((g and 0xFF) shl 8) or ((b and 0xFF) shl 0))
+    ) : this(((w.cap() and 0xFF) shl 24) or ((r.cap() and 0xFF) shl 16) or ((g.cap() and 0xFF) shl 8) or ((b.cap() and 0xFF) shl 0))
 
     val white get() = (rgbw shr 24) and 0xFF
 
@@ -29,3 +29,5 @@ data class Color(val rgbw: Int) {
     val blue get() = (rgbw shr 0) and 0xFF
 
 }
+
+private fun Int.cap() = this.coerceIn(0..255)
