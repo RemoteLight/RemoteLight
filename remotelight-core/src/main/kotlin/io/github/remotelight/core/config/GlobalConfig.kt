@@ -10,7 +10,7 @@ import org.koin.core.qualifier.named
  */
 object GlobalConfig: Config(), KoinComponent {
 
-    override fun getConfigLoader(): ConfigLoader {
+    override fun createConfigLoader(): ConfigLoader {
         val loader: ConfigLoader by inject(qualifier = named("global"))
         return loader
     }

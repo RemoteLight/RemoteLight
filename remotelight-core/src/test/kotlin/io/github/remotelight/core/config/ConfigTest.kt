@@ -2,6 +2,8 @@ package io.github.remotelight.core.config
 
 import io.github.remotelight.core.config.loader.ConfigLoader
 import io.github.remotelight.core.di.Modules
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -20,7 +22,7 @@ internal class ConfigTest: AutoCloseKoinTest() {
     @Test
     fun propertyDelegate() {
         val testConfig = object : Config() {
-            override fun getConfigLoader() = TestConfigLoader()
+            override fun createConfigLoader() = TestConfigLoader()
 
             val prop1: String by Property("prop.1", "")
             val prop2: String by Property("prop.2", "Property #2")
@@ -39,7 +41,7 @@ internal class ConfigTest: AutoCloseKoinTest() {
     @Test
     fun addRemoveProperty() {
         val config = object : Config() {
-            override fun getConfigLoader() = TestConfigLoader()
+            override fun createConfigLoader() = TestConfigLoader()
         }
         val existingProp = config.addProperty(Property("test", "default"))
         assertEquals("last", existingProp.data)
@@ -57,18 +59,45 @@ internal class ConfigTest: AutoCloseKoinTest() {
         assertEquals("fallback", config.getData(newProp.id, "fallback"))
     }
 
+    @Test
+    fun propertyObservation() = runBlocking {
+        val loader = TestConfigLoader()
+        val config = object : Config() {
+            override fun createConfigLoader() = loader
+        }
+
+        val property = config.addProperty(Property("text", "test value"))
+        assertEquals(1, property.dataObservers.size)
+        delay(10) // wait for the store action to finish
+        assertTrue(loader.properties.contains(property))
+        property.data = "updated"
+        delay(10)
+        assertEquals(property.data, loader.properties.find { it == property }?.data)
+        config.removeProperty(property.id)
+        delay(10)
+        assertFalse(loader.properties.contains(property))
+        assertEquals(0, property.dataObservers.size)
+    }
+
 }
 
 internal class TestConfigLoader: ConfigLoader {
-    private var properties: List<Property<*>> = MutableList(5) { i -> Property("test_$i", getRandomValue()) } + Property("test", "last")
+    val properties: MutableList<Property<*>> = generateList()
 
     override fun loadProperties(): List<Property<*>> = properties
 
     override fun storeProperties(properties: List<Property<*>>) {
-        this.properties = properties
+        this.properties.clear()
+        this.properties.addAll(properties)
     }
 
     override fun getSource() = "Test-Data"
+
+    private fun generateList(): MutableList<Property<*>> {
+        val list = MutableList<Property<*>>(5) { i -> Property("test_$i", getRandomValue()) }
+        list.add(Property("test", "last"))
+        return list
+    }
 
     private fun getRandomValue(): Any {
         return when(Random.nextInt(4)) {
