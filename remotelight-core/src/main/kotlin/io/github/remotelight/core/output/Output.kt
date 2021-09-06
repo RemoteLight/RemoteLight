@@ -5,7 +5,7 @@ import io.github.remotelight.core.function.Status
 import io.github.remotelight.core.utils.reactive.ObserverList
 import kotlin.properties.Delegates
 
-abstract class Output(val id: String) {
+abstract class Output(val config: OutputConfig) {
 
     val observableStatus = ObserverList<Status>()
     open var status: Status by Delegates.observable(Status.Stopped) { _, oldValue, newValue ->

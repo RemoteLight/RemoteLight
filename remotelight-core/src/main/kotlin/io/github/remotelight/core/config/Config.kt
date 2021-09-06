@@ -19,10 +19,14 @@ abstract class Config: KoinComponent {
 
     private val propertyMap = HashMap<String, Property<*>>()
     private val propertyObservers = mutableListOf<Pair<Property<*>, Observer<*>>>()
+
     // global application coroutine context
     private val coroutineContext: CoroutineContext by inject()
     // coroutine scope is used for launching the store task in a separate coroutine
     private val scope = CoroutineScope(coroutineContext + Dispatchers.IO)
+
+    /** Automatically store all properties on data change. */
+    open val autoStoreOnChange: Boolean = true
 
     protected abstract fun createConfigLoader(): ConfigLoader
 
@@ -61,6 +65,7 @@ abstract class Config: KoinComponent {
     }
 
     private fun notifyDataChanged() {
+        if(!autoStoreOnChange) return
         scope.launch {
             storeProperties()
         }
