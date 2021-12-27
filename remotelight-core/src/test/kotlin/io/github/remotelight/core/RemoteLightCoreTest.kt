@@ -49,7 +49,7 @@ internal class RemoteLightCoreTest {
     @Test
     fun testGlobalConfig() {
         assertNotNull(GlobalConfig.test)
-        assertEquals("Test value", GlobalConfig.test)
+        assertEquals("Hello World!", GlobalConfig.test)
     }
 
 }

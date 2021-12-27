@@ -1,106 +1,119 @@
 package io.github.remotelight.core.config
 
 import io.github.remotelight.core.config.loader.ConfigLoader
-import io.github.remotelight.core.di.Modules
+import io.github.remotelight.core.config.property.Property
+import io.github.remotelight.core.di.configModule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.koin.test.junit5.AutoCloseKoinTest
 import org.koin.test.junit5.KoinTestExtension
 import kotlin.random.Random
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 
-internal class ConfigTest: AutoCloseKoinTest() {
+internal class ConfigTest : AutoCloseKoinTest() {
 
     @JvmField
     @RegisterExtension
     val koinTestExtension = KoinTestExtension.create {
-        modules(Modules.coreModule)
+        modules(configModule)
     }
 
     @Test
     fun propertyDelegate() {
-        val testConfig = object : Config() {
-            override fun createConfigLoader() = TestConfigLoader()
-
-            val prop1: String by Property("prop.1", "")
-            val prop2: String by Property("prop.2", "Property #2")
+        val testConfig = object : Config(TestConfigLoader()) {
+            var prop1: String by Property("prop.1", "")
+            var prop2: String by Property("prop.2", "Property #2")
             val existing: String by Property("test", "-") // should not overwrite existing data
         }
 
-        assertNotNull(testConfig.getProperty<String>("prop.1"))
-        assertEquals("", testConfig.getProperty<String>("prop.1")?.data)
-        assertNotNull(testConfig.getProperty<String>("prop.2"))
-        assertEquals(testConfig.prop2, testConfig.getProperty<String>("prop.2")?.data)
-        assertNotEquals("-", testConfig.getProperty<String>("test")?.data)
+        assertNull(testConfig.getProperty("prop.1"))
+        testConfig.prop1 = "a"
+        assertEquals("a", testConfig.getProperty("prop.1"))
+        assertNull(testConfig.getProperty("prop.2"))
+        testConfig.prop2 = "b"
+        assertEquals(testConfig.prop2, testConfig.getProperty("prop.2"))
+        assertNotEquals("-", testConfig.getProperty("test"))
 
-        testConfig.cancelAndWait()
+        testConfig.cancelScope()
     }
 
     @Test
     fun addRemoveProperty() {
-        val config = object : Config() {
-            override fun createConfigLoader() = TestConfigLoader()
+        val config = object : Config(TestConfigLoader()) {
+            var existing by Property("test", "default")
         }
-        val existingProp = config.addProperty(Property("test", "default"))
-        assertEquals("last", existingProp.data)
-        assertEquals("last", config.getProperty<String>("test")?.data)
-        val newProp = config.addProperty(Property("new", "default data"))
-        assertEquals("default data", newProp.data)
-        assertEquals("default data", config.getProperty<String>("new")?.data)
-        assertEquals("fallback data", config.getData("not.exist", "fallback data"))
-        assertEquals("default data", config.getData("new", "fallback"))
+        assertEquals("last", config.existing)
+        assertEquals("last", config.requirePropertyValue("test", String::class.java))
 
-        val removedNew = config.removeProperty(newProp.id)
-        assertEquals(newProp, removedNew)
-        assertFalse(config.hasProperty(newProp.id))
-        assertNull(config.getProperty<String>(newProp.id))
-        assertEquals("fallback", config.getData(newProp.id, "fallback"))
+        val newProp = config.storeProperty("new", "default data")
+        assertEquals("default data", newProp)
+        assertEquals("default data", config.getProperty("new"))
+
+        config.deleteProperty("new")
+        assertFalse(config.hasProperty("new"))
+        assertNull(config.getProperty("new"))
+
+        config.existing = "new value"
+        assertEquals("new value", config.existing)
+        assertEquals("new value", config.getProperty("test"))
+        config.deleteProperty("test")
+        assertFalse(config.hasProperty("test"))
+        assertEquals("default", config.existing)
     }
 
     @Test
-    fun propertyObservation() = runBlocking {
-        val loader = TestConfigLoader()
-        val config = object : Config() {
-            override fun createConfigLoader() = loader
+    fun debounceTest() {
+        val loader = object : ConfigLoader {
+            var storeCounter = 0
+            override fun loadPropertyValues(): PropertyValuesWrapper? = null
+            override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {
+                storeCounter++
+                println("Stored property values #$storeCounter")
+            }
+            override fun getSource() = "Test Loader"
         }
+        val config = object : Config(loader) {}
 
-        val property = config.addProperty(Property("text", "test value"))
-        assertEquals(1, property.dataObservers.size)
-        delay(10) // wait for the store action to finish
-        assertTrue(loader.properties.contains(property))
-        property.data = "updated"
-        delay(10)
-        assertEquals(property.data, loader.properties.find { it == property }?.data)
-        config.removeProperty(property.id)
-        delay(10)
-        assertFalse(loader.properties.contains(property))
-        assertEquals(0, property.dataObservers.size)
+        for (i in 0..10) {
+            config.storeProperty("$i", "test value #$i")
+        }
+        runBlocking {
+            delay(config.storeDebounce.delay + 10)
+            assertEquals(1, loader.storeCounter)
+        }
     }
 
 }
 
-internal class TestConfigLoader: ConfigLoader {
-    val properties: MutableList<Property<*>> = generateList()
+internal class TestConfigLoader : ConfigLoader {
+    private val properties: MutableMap<String, Any?> = generateList()
 
-    override fun loadProperties(): List<Property<*>> = properties
+    override fun loadPropertyValues(): PropertyValuesWrapper = PropertyValuesWrapper(properties = properties)
 
-    override fun storeProperties(properties: List<Property<*>>) {
+    override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {
         this.properties.clear()
-        this.properties.addAll(properties)
+        this.properties.putAll(valuesWrapper.properties)
     }
 
     override fun getSource() = "Test-Data"
 
-    private fun generateList(): MutableList<Property<*>> {
-        val list = MutableList<Property<*>>(5) { i -> Property("test_$i", getRandomValue()) }
-        list.add(Property("test", "last"))
-        return list
+    private fun generateList(): MutableMap<String, Any?> {
+        val map = buildMap<String, Any?>(5) {
+            for (i in 0..5) {
+                put("test_$i", getRandomValue())
+            }
+        }.toMutableMap()
+        map["test"] = "last"
+        return map
     }
 
     private fun getRandomValue(): Any {
-        return when(Random.nextInt(4)) {
+        return when (Random.nextInt(4)) {
             0 -> "Test String ${Random.nextLong()}"
             1 -> (System.currentTimeMillis() % 2L) == 0L
             2 -> Random.nextDouble()

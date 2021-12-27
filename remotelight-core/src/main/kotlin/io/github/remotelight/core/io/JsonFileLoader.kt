@@ -1,35 +1,25 @@
 package io.github.remotelight.core.io
 
-import com.beust.klaxon.JsonBase
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
-import org.tinylog.kotlin.Logger
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
-import java.io.FileNotFoundException
 
-open class JsonFileLoader(val file: File): Loader {
+open class JsonFileLoader(
+    val file: File,
+    val objectMapper: ObjectMapper = jacksonObjectMapper()
+) : Loader {
 
-    fun parseJson(): Any? {
-        try {
-            file.reader().use { reader ->
-                return Parser.default().parse(reader)
-            }
-        } catch (e: FileNotFoundException) {
-            Logger.warn("The JSON file '${file.absolutePath}' does not exist.")
+    inline fun <reified T> parseJson(): T {
+        file.inputStream().use { stream ->
+            return objectMapper.readValue(stream)
         }
-        return null
     }
 
-    fun writeJson(json: JsonBase, prettyPrint: Boolean = true) {
-        val jsonString = if(prettyPrint) {
-            // this is the recommended way to pretty print json with Klaxon (https://github.com/cbeust/klaxon/issues/98#issuecomment-361169101)
-            // convert to JSON String, parse it and convert it to json string with pretty print
-            val objString = json.toJsonString()
-            (Parser.default().parse(StringBuilder(objString)) as JsonObject).toJsonString(true)
-        } else {
-            json.toJsonString(false)
+    inline fun <reified T> writeJson(data: T) {
+        file.outputStream().use { stream ->
+            objectMapper.writeValue(stream, data)
         }
-        file.writeText(jsonString)
     }
 
     override fun getSource() = "File: ${file.absolutePath}"

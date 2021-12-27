@@ -5,7 +5,7 @@ typealias Observer<T> = (oldValue: T, newValue: T) -> Unit
 /**
  * List for holding observers which get notified about a value change.
  */
-class ObserverList<T> {
+class ObserverList<T>: Collection<Observer<T>> {
 
     private val observers = mutableListOf<Observer<T>>()
 
@@ -22,8 +22,16 @@ class ObserverList<T> {
 
     fun clear() = observers.clear()
 
-    val size get() = observers.size
-
     fun notify(oldValue: T, newValue: T) = observers.forEach { it(oldValue, newValue) }
 
+    override fun contains(element: Observer<T>) = observers.contains(element)
+
+    override fun containsAll(elements: Collection<Observer<T>>) = observers.containsAll(elements)
+
+    override fun isEmpty() = observers.isEmpty()
+
+    override fun iterator(): Iterator<Observer<T>> = observers.iterator()
+
+    override val size: Int
+        get() = observers.size
 }

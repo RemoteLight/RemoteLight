@@ -1,33 +1,33 @@
 package io.github.remotelight.core.config.loader
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
-import io.github.remotelight.core.RemoteLightCore
-import io.github.remotelight.core.config.Property
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.github.remotelight.core.config.PropertyValuesWrapper
 import io.github.remotelight.core.io.JsonFileLoader
 import org.tinylog.kotlin.Logger
 import java.io.File
+import java.io.FileNotFoundException
 
-class JsonConfigLoader(file: File): JsonFileLoader(file), ConfigLoader {
+class JsonConfigLoader(
+    file: File,
+    objectMapper: ObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+) : ConfigLoader, JsonFileLoader(file, objectMapper) {
 
-    override fun loadProperties(): List<Property<*>> {
+    override fun loadPropertyValues(): PropertyValuesWrapper? {
         try {
-            val jsonObj = parseJson() as? JsonObject?
-            jsonObj?.array<Property<*>>("properties")?.let { array ->
-                Klaxon().parseArray<Property<*>>(array.toJsonString())?.let { return it }
-            }
+            return parseJson()
+        } catch (e: FileNotFoundException) {
+            Logger.info("Config file '${file.path}' does not exist.")
         } catch (e: Exception) {
             Logger.error(e, "An error occurred while loading the config from file '${file.absolutePath}'.")
         }
-        return mutableListOf()
+        return null
     }
 
-    override fun storeProperties(properties: List<Property<*>>) {
-        val obj = JsonObject()
-        obj["version"] = RemoteLightCore.VERSION
-        obj["properties"] = properties
+    override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {
         try {
-            writeJson(obj, true)
+            writeJson(valuesWrapper)
         } catch (e: Exception) {
             Logger.error(e, "An error occurred while storing the config to file '${file.absolutePath}'.")
         }

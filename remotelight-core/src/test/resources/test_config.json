@@ -1,19 +1,11 @@
 {
-  "version": "1.0.0",
-  "properties": [{
-    "data": 0,
-    "id": "test_0"
-  }, {
-    "data": "1",
-    "id": "test_1"
-  }, {
-    "data": 2,
-    "id": "test_2"
-  }, {
-    "data": "3",
-    "id": "test_3"
-  }, {
-    "data": 4,
-    "id": "test_4"
-  }]
+  "version" : "1.0.0",
+  "properties" : {
+    "test_0" : 0,
+    "test_1" : "1",
+    "test_2" : 2,
+    "test_3" : "3",
+    "test_4" : 4,
+    "test_5" : "5"
+  }
 }

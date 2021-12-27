@@ -1,12 +1,10 @@
 package io.github.remotelight.core.output
 
 import io.github.remotelight.core.config.Config
-import io.github.remotelight.core.config.Property
 import io.github.remotelight.core.config.loader.ConfigLoader
+import io.github.remotelight.core.config.property.Property
 
-class OutputConfig(private val loader: ConfigLoader): Config() {
-
-    override fun createConfigLoader() = loader
+class OutputConfig(loader: ConfigLoader, val outputClassName: String): Config(loader) {
 
     val name: String by Property("name", "")
 
