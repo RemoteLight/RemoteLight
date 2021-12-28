@@ -4,6 +4,8 @@ import io.github.remotelight.core.config.loader.ConfigLoader
 import io.github.remotelight.core.constants.Defaults
 import io.github.remotelight.core.utils.CoroutineDebounce
 import io.github.remotelight.core.utils.Debounce
+import io.github.remotelight.core.utils.reactive.Observer
+import io.github.remotelight.core.utils.reactive.ObserverList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,6 +22,8 @@ open class Config(
     internal open val storeDebounce: Debounce<Unit> = CoroutineDebounce(Defaults.CONFIG_STORE_DEBOUNCE_DELAY, scope)
 
     private val properties = mutableMapOf<String, Any?>()
+
+    private val propertyObserver = mutableMapOf<String, ObserverList<Any?>>()
 
     init {
         if (loadPropertiesOnInit) {
@@ -54,11 +58,13 @@ open class Config(
     private fun onPropertyChanged(id: String, oldValue: Any?, newValue: Any?) {
         Logger.trace("Property changed ($id): $oldValue -> $newValue")
         storePropertyValues()
+        propertyObserver[id]?.notify(oldValue, newValue)
     }
 
     private fun onPropertyDeleted(id: String, oldValue: Any?) {
         Logger.trace("Property deleted ($id): $oldValue")
         storePropertyValues()
+        propertyObserver[id]?.notify(oldValue, null)
     }
 
     @Synchronized
@@ -81,6 +87,17 @@ open class Config(
         } else {
             Logger.info("No property values available.")
         }
+    }
+
+    fun <T : Any?> observeProperty(id: String, observer: Observer<T>): Observer<T> {
+        return propertyObserver[id]?.observe(observer as Observer<Any?>) ?: with(ObserverList<Any?>()) {
+            propertyObserver[id] = this
+            observe(observer as Observer<Any?>)
+        }
+    }
+
+    fun removeObserver(id: String, observer: Observer<*>) {
+        propertyObserver[id]?.remove(observer as Observer<Any?>)
     }
 
     fun cancelScope() {

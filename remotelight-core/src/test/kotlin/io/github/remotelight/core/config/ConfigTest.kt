@@ -88,6 +88,33 @@ internal class ConfigTest : AutoCloseKoinTest() {
         }
     }
 
+    @Test
+    fun observeProperty() {
+        val config = object : Config(EmptyConfigLoader()) {}
+        assertFalse(config.hasProperty("test"))
+
+        var observedValue: String? = null
+        val observer = config.observeProperty<String?>("test") { oldValue, newValue ->
+            assertEquals(observedValue, oldValue)
+            observedValue = newValue
+        }
+
+        config.storeProperty("test", "a")
+        assertEquals("a", observedValue)
+        config.storeProperty("test", "b")
+        assertEquals("b", observedValue)
+
+        config.removeObserver("test", observer)
+        config.storeProperty("test", "c")
+        assertNotEquals("c", observedValue)
+    }
+
+}
+
+internal class EmptyConfigLoader : ConfigLoader {
+    override fun loadPropertyValues(): PropertyValuesWrapper? = null
+    override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {}
+    override fun getSource() = "Empty Config Loader"
 }
 
 internal class TestConfigLoader : ConfigLoader {
