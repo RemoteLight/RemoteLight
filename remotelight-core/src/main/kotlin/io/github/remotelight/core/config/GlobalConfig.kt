@@ -6,7 +6,7 @@ import org.koin.core.context.GlobalContext.get
 import org.koin.core.qualifier.named
 
 object GlobalConfig : KoinComponent, Config(
-    get().get(qualifier = named("global"))
+    get().get(named("global"))
 ) {
 
     val test by Property("test", "Hello World!")

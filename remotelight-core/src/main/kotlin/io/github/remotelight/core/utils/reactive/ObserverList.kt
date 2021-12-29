@@ -5,7 +5,7 @@ typealias Observer<T> = (oldValue: T, newValue: T) -> Unit
 /**
  * List for holding observers which get notified about a value change.
  */
-class ObserverList<T>: Collection<Observer<T>> {
+class ObserverList<T> : Collection<Observer<T>> {
 
     private val observers = mutableListOf<Observer<T>>()
 

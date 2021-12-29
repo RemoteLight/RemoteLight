@@ -10,15 +10,15 @@ import java.util.*
 object TinylogConfiguration {
 
     fun applyConfiguration() {
-        if(Configuration.isFrozen()) {
+        if (Configuration.isFrozen()) {
             Logger.warn("Cannot apply tinylog configurations since it is already initialized.")
             return
         }
         val properties = loadTinylogProperties()
-        val (fileFormat: String, latestFormat: String) = if(!checkPropertiesContainsKeys(properties)) {
+        val (fileFormat: String, latestFormat: String) = if (!checkPropertiesContainsKeys(properties)) {
             // fallback format
             Pair("{date}.{count}.txt", "latest.txt")
-        } else{
+        } else {
             Pair(properties.getProperty("writerF.file"), properties.getProperty("writerF.latest"))
         }
         val logFilePath = FilePaths.LOG_FILE_PATH.toFile().absolutePath

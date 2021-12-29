@@ -32,13 +32,14 @@ internal class RemoteLightCoreTest {
         @AfterAll
         @JvmStatic
         fun destroyRemoteLight() {
+            println("Destroying RemoteLightCore")
             core.destroy()
         }
     }
 
     @Test
     fun testDIModules() {
-        val testComponent = object: KoinComponent {
+        val testComponent = object : KoinComponent {
             val configLoaderGlobal: ConfigLoader by inject(qualifier = named("global"))
         }
         testComponent.apply {

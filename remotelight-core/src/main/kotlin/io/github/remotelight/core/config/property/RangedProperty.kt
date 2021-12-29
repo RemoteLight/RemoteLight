@@ -1,7 +1,6 @@
 package io.github.remotelight.core.config.property
 
-import io.github.remotelight.core.config.Config
-import kotlin.reflect.KProperty
+import io.github.remotelight.core.config.PropertyHolder
 
 class RangedProperty<T : Comparable<T>>(
     id: String,
@@ -15,11 +14,7 @@ class RangedProperty<T : Comparable<T>>(
         }
     }
 
-    override fun setValue(config: Config, value: T) = super.setValue(config, ensureInRange(value))
-
-    override fun setValue(thisRef: Config, property: KProperty<*>, value: T) {
-        super.setValue(thisRef, property, ensureInRange(value))
-    }
+    override fun setValue(propertyHolder: PropertyHolder, value: T) = super.setValue(propertyHolder, ensureInRange(value))
 
     private fun ensureInRange(value: T): T {
         return if (value !in range) {

@@ -1,37 +1,18 @@
 package io.github.remotelight.core.config
 
-import io.github.remotelight.core.config.loader.ConfigLoader
-import io.github.remotelight.core.constants.Defaults
-import io.github.remotelight.core.utils.CoroutineDebounce
-import io.github.remotelight.core.utils.Debounce
 import io.github.remotelight.core.utils.reactive.Observer
 import io.github.remotelight.core.utils.reactive.ObserverList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import org.tinylog.kotlin.Logger
 
 open class Config(
-    private val configLoader: ConfigLoader,
-    loadPropertiesOnInit: Boolean = true
-) {
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    internal open val storeDebounce: Debounce<Unit> = CoroutineDebounce(Defaults.CONFIG_STORE_DEBOUNCE_DELAY, scope)
+    var configChangeCallback: ConfigChangeCallback? = null
+) : PropertyHolder {
 
     private val properties = mutableMapOf<String, Any?>()
 
     private val propertyObserver = mutableMapOf<String, ObserverList<Any?>>()
 
-    init {
-        if (loadPropertiesOnInit) {
-            loadPropertyValues()
-        }
-    }
-
-    fun <T> storeProperty(id: String, value: T): T {
+    override fun <T : Any?> storeProperty(id: String, value: T): T {
         val oldValue = properties.put(id, value)
         onPropertyChanged(id, oldValue, value)
         return value
@@ -39,7 +20,7 @@ open class Config(
 
     fun hasProperty(id: String) = properties.contains(id)
 
-    fun getProperty(id: String) = properties[id]
+    override fun getProperty(id: String) = properties[id]
 
     fun <T> requirePropertyValue(id: String, type: Class<out T>): T {
         val value = getProperty(id)
@@ -57,38 +38,27 @@ open class Config(
 
     private fun onPropertyChanged(id: String, oldValue: Any?, newValue: Any?) {
         Logger.trace("Property changed ($id): $oldValue -> $newValue")
-        storePropertyValues()
+        configChangeCallback?.onConfigChange(properties)
         propertyObserver[id]?.notify(oldValue, newValue)
     }
 
     private fun onPropertyDeleted(id: String, oldValue: Any?) {
         Logger.trace("Property deleted ($id): $oldValue")
-        storePropertyValues()
+        configChangeCallback?.onConfigChange(properties)
         propertyObserver[id]?.notify(oldValue, null)
     }
 
     @Synchronized
-    private fun storePropertyValues() {
-        storeDebounce.debounce {
-            Logger.debug("Storing ${properties.size} property values to ${configLoader.getSource()}...")
-            val wrapper = PropertyValuesWrapper(properties = properties)
-            configLoader.storePropertyValues(wrapper)
-            Logger.debug("Successfully stored property values.")
+    fun setPropertyValues(properties: Map<String, Any?>, clear: Boolean = false) {
+        if (clear) {
+            this.properties.clear()
         }
+        this.properties.putAll(properties)
     }
 
-    @Synchronized
-    private fun loadPropertyValues() {
-        Logger.info("Loading property values from ${configLoader.getSource()}...")
-        val wrapper = configLoader.loadPropertyValues()
-        if (wrapper != null) {
-            properties.putAll(wrapper.properties)
-            Logger.info("Successfully loaded ${wrapper.properties.size} property values.")
-        } else {
-            Logger.info("No property values available.")
-        }
-    }
+    fun getPropertyValues() = properties.toMap()
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : Any?> observeProperty(id: String, observer: Observer<T>): Observer<T> {
         return propertyObserver[id]?.observe(observer as Observer<Any?>) ?: with(ObserverList<Any?>()) {
             propertyObserver[id] = this
@@ -97,15 +67,12 @@ open class Config(
     }
 
     fun removeObserver(id: String, observer: Observer<*>) {
+        @Suppress("UNCHECKED_CAST")
         propertyObserver[id]?.remove(observer as Observer<Any?>)
     }
 
-    fun cancelScope() {
-        scope.cancel()
-    }
-
     override fun toString(): String {
-        return "NewConfig(configValueLoader=$configLoader, storeDebounce=$storeDebounce, properties=$properties)"
+        return "Config(properties=$properties, propertyObserver=$propertyObserver)"
     }
 
 }

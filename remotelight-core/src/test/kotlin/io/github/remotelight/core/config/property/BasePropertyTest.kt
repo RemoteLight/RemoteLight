@@ -1,10 +1,10 @@
 package io.github.remotelight.core.config.property
 
+import io.github.remotelight.core.config.BaseConfigTest
 import io.github.remotelight.core.config.Config
-import io.github.remotelight.core.config.TestConfigLoader
 
-abstract class BasePropertyTest {
+internal abstract class BasePropertyTest : BaseConfigTest() {
 
-    protected open val testConfig = object : Config(TestConfigLoader()) {}
+    protected open val testConfig = createTestConfig { object : Config(it) {} }
 
 }

@@ -19,7 +19,8 @@ private fun java.util.Map<String, String>.toHashMap(): HashMap<String, String> {
 }
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-class ColoredConsoleWriter(properties: java.util.Map<String, String>): AbstractFormatPatternWriter(properties.toHashMap()), Writer {
+class ColoredConsoleWriter(properties: java.util.Map<String, String>) :
+    AbstractFormatPatternWriter(properties.toHashMap()), Writer {
 
     private val errorLevel: Level
 
@@ -74,7 +75,7 @@ class ColoredConsoleWriter(properties: java.util.Map<String, String>): AbstractF
     }
 
     private fun replacePlaceholders(logEntry: LogEntry, formatted: String): String {
-        if(!formatted.contains('%')) return formatted
+        if (!formatted.contains('%')) return formatted
         var text = formatted
         // replace %level% placeholder with a color code for the current log level
         text = text.replace("%level%", codeFromLevel(logEntry.level), true)
@@ -85,7 +86,7 @@ class ColoredConsoleWriter(properties: java.util.Map<String, String>): AbstractF
         return text
     }
 
-    private fun codeFromLevel(level: Level): String = when(level) {
+    private fun codeFromLevel(level: Level): String = when (level) {
         Level.TRACE -> Code.DARK_GRAY.code
         Level.DEBUG -> Code.LIGHT_GRAY.code
         Level.INFO -> Code.WHITE.code

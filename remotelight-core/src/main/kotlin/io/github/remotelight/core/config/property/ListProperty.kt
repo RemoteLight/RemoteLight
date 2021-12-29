@@ -1,7 +1,6 @@
 package io.github.remotelight.core.config.property
 
-import io.github.remotelight.core.config.Config
-import kotlin.reflect.KProperty
+import io.github.remotelight.core.config.PropertyHolder
 
 class ListProperty<T>(
     id: String,
@@ -17,11 +16,9 @@ class ListProperty<T>(
         }
     }
 
-    override fun setValue(config: Config, value: T) = super.setValue(config, ensureInList(value))
-
-    override fun setValue(thisRef: Config, property: KProperty<*>, value: T) {
-        val previous = getValue(thisRef)
-        super.setValue(thisRef, property, ensureInList(value, previous))
+    override fun setValue(propertyHolder: PropertyHolder, value: T): T {
+        val previous = getValue(propertyHolder)
+        return super.setValue(propertyHolder, ensureInList(value, previous))
     }
 
     private fun ensureInList(value: T, previous: T? = null): T {

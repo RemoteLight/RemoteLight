@@ -1,28 +1,28 @@
 package io.github.remotelight.core.config.property
 
 import io.github.remotelight.core.config.Config
+import io.github.remotelight.core.config.PropertyHolder
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 open class Property<T : Any?>(
     val id: String,
     val defaultValue: T
-) : ReadWriteProperty<Config, T> {
+) : ReadWriteProperty<PropertyHolder, T> {
 
-    open fun getValue(config: Config): T {
+    open fun getValue(propertyHolder: PropertyHolder): T {
         @Suppress("UNCHECKED_CAST")
-        return (config.getProperty(id) as? T) ?: defaultValue
+        return (propertyHolder.getProperty(id) as? T) ?: defaultValue
     }
 
-    open fun setValue(config: Config, value: T) = config.storeProperty(id, value)
+    open fun setValue(propertyHolder: PropertyHolder, value: T) = propertyHolder.storeProperty(id, value)
 
-    override fun getValue(thisRef: Config, property: KProperty<*>): T {
-        @Suppress("UNCHECKED_CAST")
-        return (thisRef.getProperty(id) as? T) ?: defaultValue
+    override fun getValue(thisRef: PropertyHolder, property: KProperty<*>): T {
+        return getValue(thisRef)
     }
 
-    override fun setValue(thisRef: Config, property: KProperty<*>, value: T) {
-        thisRef.storeProperty(id, value)
+    override fun setValue(thisRef: PropertyHolder, property: KProperty<*>, value: T) {
+        setValue(thisRef, value)
     }
 
     fun equals(other: Property<*>, config: Config): Boolean {
@@ -52,10 +52,10 @@ open class Property<T : Any?>(
 }
 
 /**
- * Stores the default value of the property in the given config.
+ * Stores the default value of the property in the given property holder.
  */
-fun <T> Property<T>.storeInConfig(config: Config): T {
-    return config.storeProperty(id, defaultValue)
+fun <T> Property<T>.storeInConfig(propertyHolder: PropertyHolder): T {
+    return propertyHolder.storeProperty(id, defaultValue)
 }
 
 /**
