@@ -34,7 +34,12 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
 
     protected open fun onVerify(): OutputVerification = OutputVerification.Ok
 
-    abstract fun outputPixels(pixels: Array<Color>)
+    fun outputPixels(pixels: Array<Color>) {
+        val colorOrdered = pixels.map { it.applyColorOrder(config.colorOrder) }
+        onOutputPixels(colorOrdered.toTypedArray())
+    }
+
+    protected abstract fun onOutputPixels(pixels: Array<Color>)
 
     override fun getProperty(id: String) = config.getProperty(id)
 

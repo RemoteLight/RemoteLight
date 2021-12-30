@@ -106,7 +106,7 @@ internal class OutputManagerTest {
             return OutputStatus.Disconnected
         }
 
-        override fun outputPixels(pixels: Array<Color>) {
+        override fun onOutputPixels(pixels: Array<Color>) {
             lastOutputPixels = pixels
         }
     }

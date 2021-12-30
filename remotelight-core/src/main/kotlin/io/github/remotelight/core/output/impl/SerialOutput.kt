@@ -66,7 +66,7 @@ class SerialOutput(
         }
     }
 
-    override fun outputPixels(pixels: Array<Color>) {
+    override fun onOutputPixels(pixels: Array<Color>) {
         val outputBuffer = protocol.processPixels(pixels)
         serialPort?.write(outputBuffer, outputBuffer.size.toLong())
     }
