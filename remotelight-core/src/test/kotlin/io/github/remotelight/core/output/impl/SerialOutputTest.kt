@@ -2,6 +2,7 @@ package io.github.remotelight.core.output.impl
 
 import io.github.remotelight.core.color.Color
 import io.github.remotelight.core.output.OutputStatus
+import io.github.remotelight.core.output.OutputVerification
 import io.github.remotelight.core.output.protocol.GlediatorProtocol
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
@@ -48,9 +49,23 @@ internal class SerialOutputTest : BaseOutputTest() {
     }
 
     @Test
+    fun outputVerification() {
+        val serialOutput = SerialOutput(testOutputConfig(pixels = 0), GlediatorProtocol)
+        assertEquals(OutputVerification.MissingProperty("pixels"), serialOutput.verify())
+        serialOutput.config.pixels = 60
+
+        assertEquals(OutputVerification.MissingProperty::class, serialOutput.verify()::class)
+        serialOutput.portDescriptor = "UnknownPort"
+        assertEquals(OutputVerification.NotAvailable::class, serialOutput.verify()::class)
+
+        serialOutput.portDescriptor = assumeSerialPortDescriptor()
+        assertEquals(OutputVerification.Ok, serialOutput.verify())
+    }
+
+    @Test
     fun pixelOutput() {
         val pixelCount = 60
-        val delay = 10L
+        val delay = 5L
         val serialOutput = SerialOutput(testOutputConfig(pixelCount), GlediatorProtocol)
         serialOutput.portDescriptor = assumeSerialPortDescriptor()
         assertEquals(OutputStatus.Connected, serialOutput.activate())

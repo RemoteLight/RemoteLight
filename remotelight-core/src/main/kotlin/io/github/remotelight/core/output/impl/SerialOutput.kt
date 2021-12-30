@@ -4,6 +4,7 @@ import io.github.remotelight.core.color.Color
 import io.github.remotelight.core.config.property.Property
 import io.github.remotelight.core.output.Output
 import io.github.remotelight.core.output.OutputStatus
+import io.github.remotelight.core.output.OutputVerification
 import io.github.remotelight.core.output.config.OutputConfig
 import io.github.remotelight.core.output.protocol.PixelProtocol
 import org.tinylog.kotlin.Logger
@@ -22,6 +23,16 @@ class SerialOutput(
     init {
         outputConfig.observeProperty<Int>("baud_rate") { newValue ->
             serialPort?.updateBaudRate(newValue)
+        }
+    }
+
+    override fun onVerify(): OutputVerification {
+        return when {
+            portDescriptor.isNullOrBlank() -> OutputVerification.MissingProperty("port_descriptor")
+            !SerialPort.existsSerialPort(
+                portDescriptor ?: ""
+            ) -> OutputVerification.NotAvailable("Serial Port $portDescriptor not available.")
+            else -> OutputVerification.Ok
         }
     }
 

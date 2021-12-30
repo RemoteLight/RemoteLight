@@ -25,6 +25,15 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
         return onDeactivate().also { status = it }
     }
 
+    fun verify(): OutputVerification {
+        return when {
+            config.pixels <= 0 -> OutputVerification.MissingProperty("pixels")
+            else -> onVerify()
+        }
+    }
+
+    protected open fun onVerify(): OutputVerification = OutputVerification.Ok
+
     open fun getPixelCount(): Int = config.pixels
 
     abstract fun outputPixels(pixels: Array<Color>)
