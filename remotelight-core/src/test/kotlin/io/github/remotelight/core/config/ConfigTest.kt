@@ -2,10 +2,9 @@ package io.github.remotelight.core.config
 
 import io.github.remotelight.core.config.property.Property
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNull
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.*
 
 internal class ConfigTest : BaseConfigTest() {
 
@@ -73,6 +72,23 @@ internal class ConfigTest : BaseConfigTest() {
         config.removeObserver("test", observer)
         config.storeProperty("test", "c")
         assertNotEquals("c", observedValue)
+    }
+
+    @Test
+    fun destroyConfig() {
+        val config = object : Config(EmptyConfigCallback()) {}
+        assertNotNull(config.configChangeCallback)
+        assertDoesNotThrow {
+            config.storeProperty("test", 1)
+        }
+        assertTrue(config.hasProperty("test"))
+
+        config.destroy()
+        assertThrows<IllegalStateException> {
+            config.storeProperty("test2", 2)
+            config.getProperty("test")
+        }
+        assertNull(config.configChangeCallback)
     }
 
 }

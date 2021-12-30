@@ -15,10 +15,11 @@ import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.test.junit5.AutoCloseKoinTest
 import org.koin.test.junit5.KoinTestExtension
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-internal class OutputConfigManagerTest : AutoCloseKoinTest() {
+internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
 
     @JvmField
     @RegisterExtension
@@ -31,7 +32,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
 
     @Test
     fun loadTest() {
-        val manager = OutputConfigManager(TestOutputConfigLoader(5))
+        val manager = DefaultOutputConfigManager(TestOutputConfigLoader(5))
         val configs = manager.loadOutputConfigs()
 
         assertNotNull(configs)
@@ -45,7 +46,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
     @Test
     fun storeTest() {
         val loader = TestOutputConfigLoader(5)
-        val manager = OutputConfigManager(loader)
+        val manager = DefaultOutputConfigManager(loader)
         val configs = manager.loadOutputConfigs()
         loader.outputConfigWrappers.clear()
 
@@ -95,7 +96,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
                 put("name", "Test-Output-#$index")
                 put("pixels", generatePixels(index))
             }
-            OutputConfigWrapper(properties, testOutputIdentifier)
+            OutputConfigWrapper(UUID.randomUUID().toString(), properties, testOutputIdentifier)
         }
 
         override fun loadOutputConfigs(): List<OutputConfigWrapper> = outputConfigWrappers

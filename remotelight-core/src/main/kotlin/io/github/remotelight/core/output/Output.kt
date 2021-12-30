@@ -34,8 +34,6 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
 
     protected open fun onVerify(): OutputVerification = OutputVerification.Ok
 
-    open fun getPixelCount(): Int = config.pixels
-
     abstract fun outputPixels(pixels: Array<Color>)
 
     override fun getProperty(id: String) = config.getProperty(id)

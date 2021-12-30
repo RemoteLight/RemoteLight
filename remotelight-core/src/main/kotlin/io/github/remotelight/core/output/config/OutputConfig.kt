@@ -7,7 +7,8 @@ import io.github.remotelight.core.output.OutputIdentifier
 
 class OutputConfig(
     configChangeCallback: ConfigChangeCallback,
-    val outputIdentifier: OutputIdentifier
+    val outputIdentifier: OutputIdentifier,
+    val id: String
 ) : Config(configChangeCallback) {
 
     var name: String by Property("name", "")

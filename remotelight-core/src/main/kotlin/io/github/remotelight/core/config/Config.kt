@@ -8,21 +8,26 @@ open class Config(
     var configChangeCallback: ConfigChangeCallback? = null
 ) : PropertyHolder {
 
+    var isDestroyed = false
+        private set
+
     private val properties = mutableMapOf<String, Any?>()
 
     private val propertyObserver = mutableMapOf<String, ObserverList<Any?>>()
 
     override fun <T : Any?> storeProperty(id: String, value: T): T {
+        requireNotDestroyed()
         val oldValue = properties.put(id, value)
         onPropertyChanged(id, oldValue, value)
         return value
     }
 
-    fun hasProperty(id: String) = properties.contains(id)
+    fun hasProperty(id: String) = requireNotDestroyed { properties.contains(id) }
 
-    override fun getProperty(id: String) = properties[id]
+    override fun getProperty(id: String) = requireNotDestroyed { properties[id] }
 
     fun <T> requirePropertyValue(id: String, type: Class<out T>): T {
+        requireNotDestroyed()
         val value = getProperty(id)
         if (value != null && type.isAssignableFrom(value::class.java)) {
             @Suppress("UNCHECKED_CAST")
@@ -32,6 +37,7 @@ open class Config(
     }
 
     fun deleteProperty(id: String) {
+        requireNotDestroyed()
         val oldValue = properties.remove(id)
         onPropertyDeleted(id, oldValue)
     }
@@ -50,6 +56,7 @@ open class Config(
 
     @Synchronized
     fun setPropertyValues(properties: Map<String, Any?>, clear: Boolean = false) {
+        requireNotDestroyed()
         if (clear) {
             this.properties.clear()
         }
@@ -60,6 +67,7 @@ open class Config(
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any?> observeProperty(id: String, observer: Observer<T>): Observer<T> {
+        requireNotDestroyed()
         return propertyObserver[id]?.observe(observer as Observer<Any?>) ?: with(ObserverList<Any?>()) {
             propertyObserver[id] = this
             observe(observer as Observer<Any?>)
@@ -71,8 +79,34 @@ open class Config(
     }
 
     fun removeObserver(id: String, observer: Observer<*>) {
+        requireNotDestroyed()
         @Suppress("UNCHECKED_CAST")
         propertyObserver[id]?.remove(observer as Observer<Any?>)
+    }
+
+    /**
+     * Destroy this config instance by removing all observers and callbacks and clearing all property values.
+     * Make sure to store the property values before calling [destroy].
+     *
+     * This config instance cannot be used after calling [destroy].
+     */
+    fun destroy() {
+        configChangeCallback = null
+        propertyObserver.forEach { it.value.clear() }
+        propertyObserver.clear()
+        properties.clear()
+        isDestroyed = true
+    }
+
+    private fun requireNotDestroyed() {
+        if (isDestroyed) {
+            throw IllegalStateException("This config was destroyed and cannot be re-used!")
+        }
+    }
+
+    private fun <T> requireNotDestroyed(block: () -> T): T {
+        requireNotDestroyed()
+        return block()
     }
 
     override fun toString(): String {
