@@ -66,6 +66,10 @@ open class Config(
         }
     }
 
+    fun <T : Any?> observeProperty(id: String, observer: (newValue: T) -> Unit): Observer<T> {
+        return observeProperty(id) { _, newValue -> observer(newValue) }
+    }
+
     fun removeObserver(id: String, observer: Observer<*>) {
         @Suppress("UNCHECKED_CAST")
         propertyObserver[id]?.remove(observer as Observer<Any?>)

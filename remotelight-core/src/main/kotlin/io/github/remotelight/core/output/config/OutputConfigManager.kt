@@ -30,7 +30,7 @@ class OutputConfigManager(
         val outputConfigWrappers = outputConfigLoader.loadOutputConfigs() ?: return null
 
         val outputConfigs = outputConfigWrappers.map { wrapper ->
-            OutputConfig(this, wrapper.outputDescriptor).apply {
+            OutputConfig(this, wrapper.outputIdentifier).apply {
                 setPropertyValues(wrapper.properties)
             }
         }
@@ -43,7 +43,7 @@ class OutputConfigManager(
         debounce.debounce {
             Logger.trace("Storing ${outputConfigs.size} output configs to ${outputConfigLoader.getSource()}...")
             val outputConfigWrappers = outputConfigs.map { config ->
-                OutputConfigWrapper(config.getPropertyValues(), config.outputDescriptor)
+                OutputConfigWrapper(config.getPropertyValues(), config.outputIdentifier)
             }
             outputConfigLoader.storeOutputConfigs(outputConfigWrappers)
             Logger.trace("Successfully stored output configs.")

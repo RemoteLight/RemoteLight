@@ -17,12 +17,12 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
 
     protected abstract fun onDeactivate(): OutputStatus
 
-    fun activate() {
-        status = onActivate()
+    fun activate(): OutputStatus {
+        return onActivate().also { status = it }
     }
 
-    fun deactivate() {
-        status = onDeactivate()
+    fun deactivate(): OutputStatus {
+        return onDeactivate().also { status = it }
     }
 
     open fun getPixelCount(): Int = config.pixels

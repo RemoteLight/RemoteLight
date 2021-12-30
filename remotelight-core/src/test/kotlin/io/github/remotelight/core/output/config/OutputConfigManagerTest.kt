@@ -1,7 +1,6 @@
 package io.github.remotelight.core.output.config
 
 import io.github.remotelight.core.di.configModule
-import io.github.remotelight.core.output.OutputDescriptor
 import io.github.remotelight.core.output.OutputIdentifier
 import io.github.remotelight.core.output.config.loader.OutputConfigLoader
 import io.github.remotelight.core.utils.CoolDownDebounce
@@ -38,7 +37,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
         assertNotNull(configs)
         assertEquals(5, configs.size)
         configs.forEachIndexed { index, config ->
-            assertEquals(TestOutputDescriptor(), config.outputDescriptor)
+            assertEquals(testOutputIdentifier, config.outputIdentifier)
             assertEquals(generatePixels(index), config.pixels)
         }
     }
@@ -86,6 +85,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
 
     companion object {
         internal fun generatePixels(index: Int) = index * 10
+        internal const val testOutputIdentifier: OutputIdentifier = "test_output"
     }
 
     internal class TestOutputConfigLoader(amount: Int = 5) : OutputConfigLoader {
@@ -95,7 +95,7 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
                 put("name", "Test-Output-#$index")
                 put("pixels", generatePixels(index))
             }
-            OutputConfigWrapper(properties, TestOutputDescriptor())
+            OutputConfigWrapper(properties, testOutputIdentifier)
         }
 
         override fun loadOutputConfigs(): List<OutputConfigWrapper> = outputConfigWrappers
@@ -107,10 +107,5 @@ internal class OutputConfigManagerTest : AutoCloseKoinTest() {
 
         override fun getSource() = "Test Output Config"
     }
-
-    internal data class TestOutputDescriptor(
-        override val uniqueIdentifier: OutputIdentifier = "test_output",
-        override val displayName: String = "Test Output"
-    ) : OutputDescriptor
 
 }

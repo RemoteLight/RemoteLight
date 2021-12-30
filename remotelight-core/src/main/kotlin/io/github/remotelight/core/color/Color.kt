@@ -28,6 +28,13 @@ data class Color(val rgbw: Int) {
 
     val blue get() = (rgbw shr 0) and 0xFF
 
+    companion object {
+        val RED get() = Color(255, 0, 0)
+        val GREEN get() = Color(0, 255, 0)
+        val BLUE get() = Color(0, 0, 255)
+        val BLACK get() = Color(0, 0, 0)
+    }
+
 }
 
 private fun Int.cap() = this.coerceIn(0..255)

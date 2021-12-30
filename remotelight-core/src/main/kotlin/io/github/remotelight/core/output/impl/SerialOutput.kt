@@ -6,33 +6,38 @@ import io.github.remotelight.core.output.Output
 import io.github.remotelight.core.output.OutputStatus
 import io.github.remotelight.core.output.config.OutputConfig
 import io.github.remotelight.core.output.protocol.PixelProtocol
+import org.tinylog.kotlin.Logger
 
 class SerialOutput(
     outputConfig: OutputConfig,
     private val protocol: PixelProtocol
 ) : Output(outputConfig) {
 
-    private var serialPort: SerialPort? = null
+    internal var serialPort: SerialPort? = null
 
     var baudRate by Property("baud_rate", 1_000_000)
 
     var portDescriptor by Property<String?>("port_descriptor", null)
 
+    init {
+        outputConfig.observeProperty<Int>("baud_rate") { newValue ->
+            serialPort?.updateBaudRate(newValue)
+        }
+    }
+
     override fun onActivate(): OutputStatus {
         if (serialPort?.isOpen == true) return OutputStatus.Connected
 
         val portDescriptor = portDescriptor ?: return OutputStatus.NotAvailable("Serial port descriptor not set.")
-        val serialPort = SerialPort(
-            baudRate,
-            portDescriptor
-        )
+        val serialPort = SerialPort(portDescriptor)
         this.serialPort = serialPort
 
         return try {
             status = OutputStatus.Connecting
-            serialPort.openSerialPort()
+            serialPort.openSerialPort(baudRate)
             OutputStatus.Connected
         } catch (e: Exception) {
+            Logger.error(e, "Could not open serial port $portDescriptor.")
             OutputStatus.Failed(e)
         }
     }

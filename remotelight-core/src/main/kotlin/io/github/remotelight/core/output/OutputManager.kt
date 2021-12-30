@@ -28,7 +28,7 @@ class OutputManager(
         }
 
         outputConfigs.forEach { config ->
-            val identifier = config.outputDescriptor.uniqueIdentifier
+            val identifier = config.outputIdentifier
             val output = OutputRegistry.createOutput(identifier, config)
 
             if (output != null) {

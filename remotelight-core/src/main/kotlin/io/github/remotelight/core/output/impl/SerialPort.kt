@@ -5,7 +5,6 @@ import com.fazecast.jSerialComm.SerialPortIOException
 import org.tinylog.kotlin.Logger
 
 class SerialPort(
-    val baudRate: Int,
     val portDescriptor: String
 ) {
 
@@ -14,18 +13,24 @@ class SerialPort(
 
         fun getSerialPort(portDescriptor: String) = SerialPort.getCommPort(portDescriptor)
 
-        fun existsSerialPort(portDescriptor: String) = getSerialPorts().any {
-            it.portDescription == portDescriptor
+        fun existsSerialPort(portName: String) = getSerialPorts().any {
+            it.systemPortName == portName
         }
     }
 
     private var serialPort: SerialPort? = null
 
+    fun updateBaudRate(baudRate: Int) {
+        serialPort?.baudRate = baudRate
+    }
+
+    fun getBaudRate() = serialPort?.baudRate
+
     val isOpen: Boolean
         get() = serialPort?.isOpen == true
 
     @Synchronized
-    fun openSerialPort() {
+    fun openSerialPort(baudRate: Int) {
         if (serialPort?.isOpen == true) {
             throw IllegalStateException("The serial port is already open. Close it before re-opening.")
         }
@@ -40,7 +45,7 @@ class SerialPort(
 
         this.serialPort = serialPort
         serialPort.baudRate = baudRate
-        serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 1000, 0)
+        serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 1000, 0)
     }
 
     @Synchronized
