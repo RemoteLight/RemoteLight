@@ -1,36 +1,31 @@
 package io.github.remotelight.core.config.loader
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.remotelight.core.config.PropertyValuesWrapper
+import io.github.remotelight.core.error.EmptyConfigException
 import io.github.remotelight.core.io.JsonFileLoader
-import org.tinylog.kotlin.Logger
 import java.io.File
 import java.io.FileNotFoundException
 
 class JsonConfigLoader(
     file: File,
-    objectMapper: ObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-) : ConfigLoader, JsonFileLoader(file, objectMapper) {
+    objectMapper: ObjectMapper
+) : JsonFileLoader(file, objectMapper), JsonPropertySource {
 
-    override fun loadPropertyValues(): PropertyValuesWrapper? {
+    override fun loadPropertyValues(): Map<String, JsonNode> {
         try {
-            return parseJson()
+            val wrapper: PropertyValuesWrapper<JsonNode> = parseJson()
+            return wrapper.properties
         } catch (e: FileNotFoundException) {
-            Logger.info("Config file '${file.path}' does not exist.")
-        } catch (e: Exception) {
-            Logger.error(e, "An error occurred while loading the config from file '${file.absolutePath}'.")
+            throw EmptyConfigException("Config file '${file.absolutePath}' does not exist.", e)
         }
-        return null
+
     }
 
-    override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {
-        try {
-            writeJson(valuesWrapper)
-        } catch (e: Exception) {
-            Logger.error(e, "An error occurred while storing the config to file '${file.absolutePath}'.")
-        }
+    override fun storePropertyValues(properties: Map<String, JsonNode>) {
+        val wrapper = PropertyValuesWrapper(properties = properties)
+        writeJson(wrapper)
     }
 
 }

@@ -1,21 +1,21 @@
 package io.github.remotelight.core.output.config
 
 import io.github.remotelight.core.config.Config
-import io.github.remotelight.core.config.ConfigChangeCallback
-import io.github.remotelight.core.config.property.Property
+import io.github.remotelight.core.config.property.property
+import io.github.remotelight.core.config.provider.PropertyProvider
 import io.github.remotelight.core.output.ColorOrder
 import io.github.remotelight.core.output.OutputIdentifier
 
 class OutputConfig(
-    configChangeCallback: ConfigChangeCallback,
+    propertyProvider: PropertyProvider<*>,
     val outputIdentifier: OutputIdentifier,
     val id: String
-) : Config(configChangeCallback) {
+) : Config(propertyProvider) {
 
-    var name: String by Property("name", "")
+    var name: String by property("name", "")
 
-    var pixels: Int by Property("pixels", 0)
+    var pixels: Int by property("pixels", 0)
 
-    var colorOrder: ColorOrder by Property("color_order", ColorOrder.RGB)
+    var colorOrder: ColorOrder by property("color_order", ColorOrder.RGB)
 
 }

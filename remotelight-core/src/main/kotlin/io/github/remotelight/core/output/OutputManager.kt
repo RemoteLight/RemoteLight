@@ -13,7 +13,7 @@ class OutputManager(
     private val outputs = mutableListOf<Output>()
 
     init {
-        outputConfigManager.enableAutoSave(::getOutputConfigs)
+        outputConfigManager.attachOutputConfigSource(::getOutputConfigs)
         loadOutputs()
     }
 
@@ -77,7 +77,7 @@ class OutputManager(
 
     private fun createOutputConfig(outputIdentifier: OutputIdentifier): OutputConfig {
         val id = UUID.randomUUID().toString()
-        return OutputConfig(outputConfigManager, outputIdentifier, id)
+        return outputConfigManager.createOutputConfig(outputIdentifier, id)
     }
 
     private fun onOutputAdded() {

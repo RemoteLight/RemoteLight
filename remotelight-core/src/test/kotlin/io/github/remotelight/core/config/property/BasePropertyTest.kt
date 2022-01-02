@@ -5,6 +5,6 @@ import io.github.remotelight.core.config.Config
 
 internal abstract class BasePropertyTest : BaseConfigTest() {
 
-    protected open val testConfig = createTestConfig { object : Config(it) {} }
+    protected open val testConfig = object : Config(TestPropertyProvider()) {}
 
 }

@@ -17,7 +17,7 @@ class ListProperty<T>(
     }
 
     override fun setValue(propertyHolder: PropertyHolder, value: T): T {
-        val previous = getValue(propertyHolder)
+        val previous = propertyHolder.getProperty(id, Any::class.java) as? T
         return super.setValue(propertyHolder, ensureInList(value, previous))
     }
 

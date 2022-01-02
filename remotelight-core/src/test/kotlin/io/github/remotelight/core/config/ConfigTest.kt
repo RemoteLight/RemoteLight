@@ -1,6 +1,6 @@
 package io.github.remotelight.core.config
 
-import io.github.remotelight.core.config.property.Property
+import io.github.remotelight.core.config.property.property
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -10,12 +10,10 @@ internal class ConfigTest : BaseConfigTest() {
 
     @Test
     fun propertyDelegate() {
-        val testConfig = createTestConfig {
-            object : Config(it) {
-                var prop1: String by Property("prop.1", "")
-                var prop2: String by Property("prop.2", "Property #2")
-                val existing: String by Property("test", "-") // should not overwrite existing data
-            }
+        val testConfig = object : Config(TestPropertyProvider()) {
+            var prop1: String by property("prop.1", "")
+            var prop2: String by property("prop.2", "Property #2")
+            val existing: String by property("test", "-") // should not overwrite existing data
         }
 
         assertNull(testConfig.getProperty("prop.1"))
@@ -29,13 +27,11 @@ internal class ConfigTest : BaseConfigTest() {
 
     @Test
     fun addRemoveProperty() {
-        val config = createTestConfig {
-            object : Config(it) {
-                var existing by Property("test", "default")
-            }
+        val config = object : Config(TestPropertyProvider()) {
+            var existing by property("test", "default")
         }
         assertEquals("last", config.existing)
-        assertEquals("last", config.requirePropertyValue("test", String::class.java))
+        assertEquals("last", config.requireProperty("test"))
 
         val newProp = config.storeProperty("new", "default data")
         assertEquals("default data", newProp)
@@ -55,7 +51,7 @@ internal class ConfigTest : BaseConfigTest() {
 
     @Test
     fun observeProperty() {
-        val config = object : Config(EmptyConfigCallback()) {}
+        val config = object : Config(TestPropertyProvider(0)) {}
         assertFalse(config.hasProperty("test"))
 
         var observedValue: String? = null
@@ -76,8 +72,7 @@ internal class ConfigTest : BaseConfigTest() {
 
     @Test
     fun destroyConfig() {
-        val config = object : Config(EmptyConfigCallback()) {}
-        assertNotNull(config.configChangeCallback)
+        val config = object : Config(TestPropertyProvider(0)) {}
         assertDoesNotThrow {
             config.storeProperty("test", 1)
         }
@@ -86,9 +81,8 @@ internal class ConfigTest : BaseConfigTest() {
         config.destroy()
         assertThrows<IllegalStateException> {
             config.storeProperty("test2", 2)
-            config.getProperty("test")
+            config.getProperty("test", String::class.java)
         }
-        assertNull(config.configChangeCallback)
     }
 
 }

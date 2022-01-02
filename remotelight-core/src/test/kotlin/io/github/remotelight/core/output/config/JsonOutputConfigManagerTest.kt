@@ -1,8 +1,12 @@
 package io.github.remotelight.core.output.config
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.remotelight.core.di.configModule
 import io.github.remotelight.core.output.OutputIdentifier
-import io.github.remotelight.core.output.config.loader.OutputConfigLoader
+import io.github.remotelight.core.output.config.loader.OutputWrapperLoader
 import io.github.remotelight.core.utils.CoolDownDebounce
 import io.github.remotelight.core.utils.Debounce
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +23,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
+internal class JsonOutputConfigManagerTest : AutoCloseKoinTest() {
 
     @JvmField
     @RegisterExtension
@@ -32,7 +36,7 @@ internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
 
     @Test
     fun loadTest() {
-        val manager = DefaultOutputConfigManager(TestOutputConfigLoader(5))
+        val manager = JsonOutputConfigManager(get(), TestOutputWrapperLoader(5))
         val configs = manager.loadOutputConfigs()
 
         assertNotNull(configs)
@@ -45,14 +49,15 @@ internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
 
     @Test
     fun storeTest() {
-        val loader = TestOutputConfigLoader(5)
-        val manager = DefaultOutputConfigManager(loader)
+        val mapper = get<ObjectMapper>()
+        val loader = TestOutputWrapperLoader(5)
+        val manager = JsonOutputConfigManager(get(), loader)
         val configs = manager.loadOutputConfigs()
         loader.outputConfigWrappers.clear()
 
         assertNotNull(configs)
         assertEquals(5, configs.size)
-        manager.enableAutoSave { configs }
+        manager.attachOutputConfigSource { configs }
 
         runBlocking {
             manager.storeOutputConfigs(configs)
@@ -73,7 +78,9 @@ internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
             configs[0].pixels = 2
             delay(10)
             assertEquals(5, loader.outputConfigWrappers.size)
-            assertEquals(2, loader.outputConfigWrappers[0].properties["pixels"])
+            val pixels = loader.outputConfigWrappers[0].properties["pixels"]
+            assertNotNull(pixels)
+            assertEquals(2, mapper.treeToValue(pixels))
             loader.outputConfigWrappers.clear()
 
             // test cancel scope
@@ -89,21 +96,25 @@ internal class DefaultOutputConfigManagerTest : AutoCloseKoinTest() {
         internal const val testOutputIdentifier: OutputIdentifier = "test_output"
     }
 
-    internal class TestOutputConfigLoader(amount: Int = 5) : OutputConfigLoader {
+    internal class TestOutputWrapperLoader(amount: Int = 5) : OutputWrapperLoader<JsonNode> {
+
+        private val mapper = jacksonObjectMapper()
 
         internal val outputConfigWrappers = MutableList(amount) { index ->
-            val properties = buildMap<String, Any?> {
-                put("name", "Test-Output-#$index")
-                put("pixels", generatePixels(index))
+            val properties = buildMap<String, JsonNode> {
+                put("name", mapper.valueToTree("Test-Output-#$index"))
+                put("pixels", mapper.valueToTree(generatePixels(index)))
             }
             OutputConfigWrapper(UUID.randomUUID().toString(), properties, testOutputIdentifier)
         }
 
-        override fun loadOutputConfigs(): List<OutputConfigWrapper> = outputConfigWrappers
+        override fun loadOutputWrappers(): List<OutputConfigWrapper<JsonNode>> {
+            return outputConfigWrappers
+        }
 
-        override fun storeOutputConfigs(outputConfigs: List<OutputConfigWrapper>) {
+        override fun storeOutputWrappers(outputWrappers: List<OutputConfigWrapper<JsonNode>>) {
             this.outputConfigWrappers.clear()
-            this.outputConfigWrappers.addAll(outputConfigs)
+            this.outputConfigWrappers.addAll(outputWrappers)
         }
 
         override fun getSource() = "Test Output Config"

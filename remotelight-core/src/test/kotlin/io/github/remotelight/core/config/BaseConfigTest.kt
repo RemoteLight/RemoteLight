@@ -1,47 +1,47 @@
 package io.github.remotelight.core.config
 
-import io.github.remotelight.core.config.loader.ConfigLoader
+import io.github.remotelight.core.config.provider.PropertyProvider
 import org.koin.test.junit5.AutoCloseKoinTest
 import kotlin.random.Random
 
 internal abstract class BaseConfigTest : AutoCloseKoinTest() {
 
-    internal class EmptyConfigCallback : ConfigChangeCallback {
-        override fun onConfigChange(properties: Map<String, Any?>) {}
-    }
+    internal class TestPropertyProvider(private val amount: Int = 5) : PropertyProvider<Any?> {
+        internal val properties = mutableMapOf<String, Any?>()
 
-    internal fun <T : Config> createTestConfig(
-        configBuilder: (ConfigChangeCallback) -> T
-    ): T {
-        val testCallback = TestConfigLoader()
-        val config = configBuilder(testCallback)
-        testCallback.loadConfigPropertyValues(config)
-        return config
-    }
-
-    internal class TestConfigLoader(private val amount: Int = 5) : ConfigChangeCallback, ConfigLoader {
-        internal val properties: MutableMap<String, Any?> = generateList()
-
-        fun loadConfigPropertyValues(config: Config) = config.setPropertyValues(properties)
-
-        fun storeConfigPropertyValues(properties: Map<String, Any?>) {
-            this.properties.clear()
-            this.properties.putAll(properties)
+        override fun onInit() {
+            properties.putAll(generateList())
         }
 
-        override fun onConfigChange(properties: Map<String, Any?>) {
-            storeConfigPropertyValues(properties)
+        override fun onClose() {}
+
+        override fun storeProperties() {}
+
+        override fun getProperties(): Map<String, *> {
+            return properties
         }
 
-        override fun loadPropertyValues(): PropertyValuesWrapper? {
-            return PropertyValuesWrapper(properties = properties)
+        override fun getRawProperties(): Map<String, Any?> = properties
+
+        override fun <T> getProperty(id: String, type: Class<T>): T {
+            return properties[id] as T
         }
 
-        override fun storePropertyValues(valuesWrapper: PropertyValuesWrapper) {
-            storeConfigPropertyValues(valuesWrapper.properties)
+        override fun hasProperty(id: String): Boolean {
+            return properties.containsKey(id)
         }
 
-        override fun getSource() = "Test Config Loader"
+        override fun <T> setProperty(id: String, value: T) {
+            properties[id] = value
+        }
+
+        override fun deleteProperty(id: String): Any? {
+            return properties.remove(id)
+        }
+
+        override fun clear() {
+            properties.clear()
+        }
 
         private fun generateList(): MutableMap<String, Any?> {
             val map = buildMap<String, Any?>(amount) {

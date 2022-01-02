@@ -1,14 +1,16 @@
 package io.github.remotelight.core.output.config
 
-import io.github.remotelight.core.config.ConfigChangeCallback
+import io.github.remotelight.core.output.OutputIdentifier
 
-interface OutputConfigManager : ConfigChangeCallback {
+interface OutputConfigManager {
 
-    fun enableAutoSave(outputConfigSource: OutputConfigSource)
+    fun attachOutputConfigSource(outputConfigSource: OutputConfigSource)
 
     fun loadOutputConfigs(): List<OutputConfig>?
 
     fun storeOutputConfigs(outputConfigs: List<OutputConfig>)
+
+    fun createOutputConfig(outputIdentifier: OutputIdentifier, id: String): OutputConfig
 
 }
 

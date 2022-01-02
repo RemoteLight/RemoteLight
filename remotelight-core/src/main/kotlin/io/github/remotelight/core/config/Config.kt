@@ -1,69 +1,83 @@
 package io.github.remotelight.core.config
 
+import io.github.remotelight.core.config.provider.PropertyProvider
+import io.github.remotelight.core.error.UnknownPropertyException
 import io.github.remotelight.core.utils.reactive.Observer
 import io.github.remotelight.core.utils.reactive.ObserverList
 import org.tinylog.kotlin.Logger
 
 open class Config(
-    var configChangeCallback: ConfigChangeCallback? = null
+    private val propertyProvider: PropertyProvider<*>
 ) : PropertyHolder {
+
+    init {
+        propertyProvider.onInit()
+    }
 
     var isDestroyed = false
         private set
 
-    private val properties = mutableMapOf<String, Any?>()
+    private val propertiesCache = mutableMapOf<String, Any?>()
 
     private val propertyObserver = mutableMapOf<String, ObserverList<Any?>>()
 
     override fun <T : Any?> storeProperty(id: String, value: T): T {
         requireNotDestroyed()
-        val oldValue = properties.put(id, value)
+        val oldValue = propertiesCache.put(id, value)
+        propertyProvider.setProperty(id, value)
         onPropertyChanged(id, oldValue, value)
         return value
     }
 
-    fun hasProperty(id: String) = requireNotDestroyed { properties.contains(id) }
-
-    override fun getProperty(id: String) = requireNotDestroyed { properties[id] }
-
-    fun <T> requirePropertyValue(id: String, type: Class<out T>): T {
+    fun hasProperty(id: String): Boolean {
         requireNotDestroyed()
-        val value = getProperty(id)
-        if (value != null && type.isAssignableFrom(value::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return value as T
+        return propertiesCache.contains(id) || propertyProvider.hasProperty(id)
+    }
+
+    override fun <T : Any?> getProperty(id: String, type: Class<T>): T? {
+        requireNotDestroyed()
+        return try {
+            propertyProvider.getProperty(id, type).also { value ->
+                propertiesCache[id] = value
+            }
+        } catch (e: Exception) {
+            Logger.error(e, "Failed to get property for ID '$id'.")
+            null
         }
-        throw IllegalArgumentException("Property with ID $id and type ${value?.javaClass?.name} is not compatible with type ${type.name}")
+    }
+
+    inline fun <reified T> getProperty(id: String): T? {
+        return getProperty(id, T::class.java)
     }
 
     fun deleteProperty(id: String) {
         requireNotDestroyed()
-        val oldValue = properties.remove(id)
+        propertiesCache.remove(id)
+        val oldValue = propertyProvider.deleteProperty(id)
         onPropertyDeleted(id, oldValue)
     }
 
     private fun onPropertyChanged(id: String, oldValue: Any?, newValue: Any?) {
         Logger.trace("Property changed ($id): $oldValue -> $newValue")
-        configChangeCallback?.onConfigChange(properties)
+        propertyProvider.storeProperties()
         propertyObserver[id]?.notify(oldValue, newValue)
     }
 
     private fun onPropertyDeleted(id: String, oldValue: Any?) {
         Logger.trace("Property deleted ($id): $oldValue")
-        configChangeCallback?.onConfigChange(properties)
+        propertyProvider.storeProperties()
         propertyObserver[id]?.notify(oldValue, null)
     }
 
-    @Synchronized
-    fun setPropertyValues(properties: Map<String, Any?>, clear: Boolean = false) {
-        requireNotDestroyed()
-        if (clear) {
-            this.properties.clear()
-        }
-        this.properties.putAll(properties)
-    }
+    fun getProperties() = propertyProvider.getProperties() + getResolvedProperties()
 
-    fun getPropertyValues() = properties.toMap()
+    fun getRawProperties() = propertyProvider.getRawProperties()
+
+    /**
+     * Get all properties resolved using this config instance.
+     * Use [getProperties] to get all properties from the property values provider.
+     */
+    fun getResolvedProperties() = propertiesCache.toMap()
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any?> observeProperty(id: String, observer: Observer<T>): Observer<T> {
@@ -85,16 +99,17 @@ open class Config(
     }
 
     /**
-     * Destroy this config instance by removing all observers and callbacks and clearing all property values.
+     * Destroy this config instance by removing all observers and clearing all property values.
      * Make sure to store the property values before calling [destroy].
      *
      * This config instance cannot be used after calling [destroy].
      */
     fun destroy() {
-        configChangeCallback = null
+        propertyProvider.clear()
+        propertyProvider.onClose()
         propertyObserver.forEach { it.value.clear() }
         propertyObserver.clear()
-        properties.clear()
+        propertiesCache.clear()
         isDestroyed = true
     }
 
@@ -104,29 +119,12 @@ open class Config(
         }
     }
 
-    private fun <T> requireNotDestroyed(block: () -> T): T {
-        requireNotDestroyed()
-        return block()
-    }
-
     override fun toString(): String {
-        return "Config(properties=$properties, propertyObserver=$propertyObserver)"
+        return "Config(propertiesCache=$propertiesCache, propertyObserver=$propertyObserver)"
     }
 
 }
 
-inline fun <reified T> Config.getPropertyValue(id: String): T? {
-    val value = getProperty(id)
-    if (value is T) {
-        return value
-    }
-    return null
-}
-
-inline fun <reified T> Config.requirePropertyValue(id: String): T {
-    val value = getProperty(id)
-    if (value is T) {
-        return value
-    }
-    throw IllegalArgumentException("Property with ID $id and type ${value?.javaClass?.name} is not compatible with type ${T::class.java.name}")
+inline fun <reified T> Config.requireProperty(id: String): T {
+    return getProperty<T>(id) ?: throw UnknownPropertyException("Property with ID '$id' not found.")
 }

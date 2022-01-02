@@ -41,7 +41,7 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
 
     protected abstract fun onOutputPixels(pixels: Array<Color>)
 
-    override fun getProperty(id: String) = config.getProperty(id)
+    override fun <T> getProperty(id: String, type: Class<T>) = config.getProperty(id, type)
 
     override fun <T> storeProperty(id: String, value: T): T = config.storeProperty(id, value)
 

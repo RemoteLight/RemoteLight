@@ -1,6 +1,8 @@
 package io.github.remotelight.core.config.loader
 
-import io.github.remotelight.core.config.PropertyValuesWrapper
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -21,10 +23,10 @@ internal class JsonConfigLoaderTest {
         println("Test file location: ${file.absolutePath}")
         assumeTrue(file.isFile, "Test file does not exist! Looking for '${file.absolutePath}'.")
 
-        val configLoader = JsonConfigLoader(file)
-        val wrapper = configLoader.loadPropertyValues()
-        val properties = wrapper?.properties
-        assertEquals(testFilePropertiesLength, properties?.size)
+        val configLoader = JsonConfigLoader(file, jacksonObjectMapper())
+        val properties = configLoader.loadPropertyValues()
+        assertNotNull(properties)
+        assertEquals(testFilePropertiesLength, properties.size)
     }
 
     @Test
@@ -32,18 +34,18 @@ internal class JsonConfigLoaderTest {
         val file = File("build/resources/test", "test_config_stored.json")
         println("Test file location: ${file.absolutePath}")
 
-        val testProperties = buildMap<String, Any?> {
+        val mapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        val testProperties = buildMap<String, JsonNode> {
             for (i in 0..5) {
-                put("test_$i", if (i % 2 == 0) i else "$i")
+                put("test_$i", mapper.valueToTree(if (i % 2 == 0) i else "$i"))
             }
         }
-        val configLoader = JsonConfigLoader(file)
-        configLoader.storePropertyValues(PropertyValuesWrapper(properties = testProperties))
+        val configLoader = JsonConfigLoader(file, mapper)
+        configLoader.storePropertyValues(testProperties)
         assertTrue(file.isFile)
 
         // load properties from file to validate stored data
-        val loadedWrapper = configLoader.loadPropertyValues()
-        val loadedProperties = loadedWrapper?.properties
+        val loadedProperties = configLoader.loadPropertyValues()
         assertNotNull(loadedProperties)
         assertEquals(testProperties.size, loadedProperties.size)
         assertEquals(testProperties, loadedProperties)

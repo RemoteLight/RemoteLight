@@ -1,15 +1,11 @@
 package io.github.remotelight.core
 
-import io.github.remotelight.core.config.ConfigManager
-import io.github.remotelight.core.config.GlobalConfig
 import io.github.remotelight.core.di.coreModule
 import io.github.remotelight.core.utils.TinylogConfiguration
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
-import org.koin.core.qualifier.named
 import org.tinylog.kotlin.Logger
 import org.tinylog.provider.ProviderRegistry
 import kotlin.concurrent.thread
@@ -31,7 +27,6 @@ class RemoteLightCore : KoinComponent {
         isInitialized = true
         TinylogConfiguration.applyConfiguration()
         initKoin()
-        initConfig()
         Runtime.getRuntime().addShutdownHook(shutdownHook)
         Logger.info("Initialized RemoteLightCore version $VERSION")
     }
@@ -40,11 +35,6 @@ class RemoteLightCore : KoinComponent {
         startKoin {
             modules(coreModule)
         }
-    }
-
-    private fun initConfig() {
-        val globalConfigManager: ConfigManager = get(named("global"))
-        globalConfigManager.loadConfigPropertyValues(GlobalConfig)
     }
 
     /**

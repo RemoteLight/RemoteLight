@@ -26,6 +26,14 @@ object FilePaths {
     val GLOBAL_CONFIG_PATH
         get() = ROOT_PATH.separate(GLOBAL_CONFIG_NAME)
 
+    var OUTPUTS_CONFIG_NAME = "outputs.json"
+        set(value) {
+            field = throwOnInit(value)
+        }
+
+    val OUTPUTS_CONFIG_PATH
+        get() = ROOT_PATH.separate(OUTPUTS_CONFIG_NAME)
+
     val LOG_FILE_PATH
         get() = ROOT_PATH.separate("logs")
 

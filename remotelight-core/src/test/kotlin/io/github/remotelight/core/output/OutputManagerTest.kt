@@ -1,17 +1,34 @@
 package io.github.remotelight.core.output
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.remotelight.core.color.Color
-import io.github.remotelight.core.output.config.OutputConfig
-import io.github.remotelight.core.output.config.OutputConfigManager
-import io.github.remotelight.core.output.config.OutputConfigSource
+import io.github.remotelight.core.config.BaseConfigTest
+import io.github.remotelight.core.config.provider.JsonPropertyProvider
+import io.github.remotelight.core.di.configModule
+import io.github.remotelight.core.output.config.*
+import io.github.remotelight.core.tools.NoDelayDebounce
+import io.github.remotelight.core.utils.Debounce
+import kotlinx.coroutines.CoroutineScope
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.RegisterExtension
+import org.koin.dsl.module
+import org.koin.test.junit5.KoinTestExtension
 import java.util.*
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 internal class OutputManagerTest {
+
+    @JvmField
+    @RegisterExtension
+    val koinTestExtension = KoinTestExtension.create {
+        modules(configModule, module {
+            factory<Debounce<Unit>> { (scope: CoroutineScope) -> NoDelayDebounce() }
+        })
+    }
 
     @Test
     fun loadStore() {
@@ -58,14 +75,19 @@ internal class OutputManagerTest {
         }
     }
 
-    internal class TestOutputConfigManager(amount: Int = 2) : OutputConfigManager {
+    internal class TestOutputConfigManager(amount: Int = 2) : OutputConfigManager, OutputConfigLoadStoreSource {
         private var outputConfigSource: OutputConfigSource? = null
 
         val outputConfigs = MutableList(amount) {
-            OutputConfig(this, "test_output", UUID.randomUUID().toString())
+            val id = UUID.randomUUID().toString()
+            val propertySource = JsonOutputPropertySource(id, this)
+            OutputConfig(
+                JsonPropertyProvider(jacksonObjectMapper(), propertySource),
+                "test_output",
+                id)
         }
 
-        override fun enableAutoSave(outputConfigSource: OutputConfigSource) {
+        override fun attachOutputConfigSource(outputConfigSource: OutputConfigSource) {
             this.outputConfigSource = outputConfigSource
         }
 
@@ -76,10 +98,23 @@ internal class OutputManagerTest {
             this.outputConfigs.addAll(outputConfigs)
         }
 
-        override fun onConfigChange(properties: Map<String, Any?>) {
-            outputConfigSource?.let { source ->
-                storeOutputConfigs(source())
-            }
+        override fun createOutputConfig(outputIdentifier: OutputIdentifier, id: String): OutputConfig {
+            return OutputConfig(
+                BaseConfigTest.TestPropertyProvider(0),
+                outputIdentifier,
+                id
+            )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun getPropertyValuesForOutput(outputId: String): Map<String, JsonNode> {
+            return outputConfigSource?.invoke()
+                ?.find { it.id == outputId }
+                ?.getProperties().orEmpty() as Map<String, JsonNode>
+        }
+
+        override fun storePropertyValuesForOutput(outputId: String, properties: Map<String, JsonNode>) {
+            outputConfigSource?.invoke()?.let { storeOutputConfigs(it) }
         }
     }
 

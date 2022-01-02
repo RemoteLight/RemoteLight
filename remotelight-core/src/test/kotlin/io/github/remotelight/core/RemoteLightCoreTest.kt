@@ -1,7 +1,7 @@
 package io.github.remotelight.core
 
 import io.github.remotelight.core.config.GlobalConfig
-import io.github.remotelight.core.config.loader.ConfigLoader
+import io.github.remotelight.core.config.provider.PropertyProvider
 import io.github.remotelight.core.constants.FilePaths
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -40,7 +40,7 @@ internal class RemoteLightCoreTest {
     @Test
     fun testDIModules() {
         val testComponent = object : KoinComponent {
-            val configLoaderGlobal: ConfigLoader by inject(qualifier = named("global"))
+            val configLoaderGlobal: PropertyProvider<*> by inject(qualifier = named("global"))
         }
         testComponent.apply {
             assertNotNull(configLoaderGlobal)

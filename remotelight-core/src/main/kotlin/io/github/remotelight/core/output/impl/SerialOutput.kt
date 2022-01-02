@@ -1,7 +1,7 @@
 package io.github.remotelight.core.output.impl
 
 import io.github.remotelight.core.color.Color
-import io.github.remotelight.core.config.property.Property
+import io.github.remotelight.core.config.property.property
 import io.github.remotelight.core.output.Output
 import io.github.remotelight.core.output.OutputStatus
 import io.github.remotelight.core.output.OutputVerification
@@ -16,9 +16,9 @@ class SerialOutput(
 
     internal var serialPort: SerialPort? = null
 
-    var baudRate by Property("baud_rate", 1_000_000)
+    var baudRate by property("baud_rate", 1_000_000)
 
-    var portDescriptor by Property<String?>("port_descriptor", null)
+    var portDescriptor by property<String?>("port_descriptor", null)
 
     init {
         outputConfig.observeProperty<Int>("baud_rate") { newValue ->
