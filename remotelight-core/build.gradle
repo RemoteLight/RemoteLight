@@ -23,6 +23,9 @@ dependencies {
     // jSerialComm
     implementation 'com.fazecast:jSerialComm:2.7.0'
 
+    // Colormath
+    implementation 'com.github.ajalt.colormath:colormath:3.2.0'
+
     // Testing
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"

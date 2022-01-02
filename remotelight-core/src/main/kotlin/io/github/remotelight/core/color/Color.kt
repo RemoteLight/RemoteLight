@@ -38,3 +38,9 @@ data class Color(val rgbw: Int) {
 }
 
 private fun Int.cap() = this.coerceIn(0..255)
+
+fun com.github.ajalt.colormath.Color.convert(): Color {
+    return with(toSRGB().clamp()) {
+        Color(redInt, greenInt, blueInt)
+    }
+}
