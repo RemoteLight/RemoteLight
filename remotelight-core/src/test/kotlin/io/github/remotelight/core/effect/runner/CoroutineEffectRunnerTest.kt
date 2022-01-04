@@ -23,10 +23,15 @@ internal class CoroutineEffectRunnerTest {
         val testEffect = TestEffect(createTestEffectConfig())
 
         assertFalse(effectRunner.isRunning())
+        assertFalse(testEffect.onEnableCalled)
         val runnerTask = EffectRunnerTask(testEffect, pixels) { StripPainter(pixels) }
         runBlocking {
             effectRunner.start(runnerTask)
             assertTrue(effectRunner.isRunning())
+            delay(10)
+            assertTrue(testEffect.onEnableCalled)
+            assertFalse(testEffect.onDisableCalled)
+
             delay(500)
             val tolerance = 10
             assertTrue(LongRange(delay - tolerance, delay + tolerance).contains(testEffect.avgDelay))
@@ -35,6 +40,7 @@ internal class CoroutineEffectRunnerTest {
             effectRunner.stop()
             delay(10)
             assertFalse(effectRunner.isRunning())
+            assertTrue(testEffect.onDisableCalled)
 
             // cancel parent job
             effectRunner.start(runnerTask)
@@ -76,6 +82,8 @@ internal class CoroutineEffectRunnerTest {
     internal class TestEffect(config: EffectConfig) : Effect(config) {
         var avgDelay = 0L
         private var lastExecution = -1L
+        var onEnableCalled = false
+        var onDisableCalled = false
 
         override fun doEffect(strip: StripPainter) {
             avgDelay = if (lastExecution != -1L) {
@@ -84,6 +92,14 @@ internal class CoroutineEffectRunnerTest {
                 0
             }
             lastExecution = System.currentTimeMillis()
+        }
+
+        override fun onEnable(pixels: Int) {
+            onEnableCalled = true
+        }
+
+        override fun onDisable() {
+            onDisableCalled = true
         }
 
     }

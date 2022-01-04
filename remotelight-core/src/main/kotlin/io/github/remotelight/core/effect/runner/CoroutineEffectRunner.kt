@@ -2,7 +2,6 @@ package io.github.remotelight.core.effect.runner
 
 import io.github.remotelight.core.effect.Effect
 import io.github.remotelight.core.effect.StripPainter
-import io.github.remotelight.core.utils.CoolDownDebounce
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,8 +22,6 @@ class CoroutineEffectRunner(
 
     private val _framesPerSecond = MutableSharedFlow<Double>(1, 0, BufferOverflow.DROP_OLDEST)
     override val framesPerSecond = _framesPerSecond.asSharedFlow()
-
-    private val warnMessageDebounce = CoolDownDebounce<Unit>(10_000L, scope)
 
     override suspend fun start(task: EffectRunnerTask) {
         runnerJob?.cancelAndJoin()
@@ -55,7 +52,8 @@ class CoroutineEffectRunner(
                     delay(delay)
                 }
             } finally {
-
+                effect.onDisable()
+                Logger.trace("Finished effect task $task.")
             }
         }
     }
