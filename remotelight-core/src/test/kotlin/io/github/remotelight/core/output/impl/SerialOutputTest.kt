@@ -3,6 +3,7 @@ package io.github.remotelight.core.output.impl
 import io.github.remotelight.core.color.Color
 import io.github.remotelight.core.output.OutputStatus
 import io.github.remotelight.core.output.OutputVerification
+import io.github.remotelight.core.output.protocol.AdalightProtocol
 import io.github.remotelight.core.output.protocol.GlediatorProtocol
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
@@ -66,7 +67,10 @@ internal class SerialOutputTest : BaseOutputTest() {
     fun pixelOutput() {
         val pixelCount = 60
         val delay = 5L
-        val serialOutput = SerialOutput(testOutputConfig(pixelCount), GlediatorProtocol)
+        val protocol = AdalightProtocol
+        val baudRate = 115_200
+        val serialOutput = SerialOutput(testOutputConfig(pixelCount), protocol)
+        serialOutput.baudRate = baudRate
         serialOutput.portDescriptor = assumeSerialPortDescriptor()
         assertEquals(OutputStatus.Connected, serialOutput.activate())
 
@@ -103,6 +107,7 @@ internal class SerialOutputTest : BaseOutputTest() {
         }
 
         println("Turning pixels off...")
+        Thread.sleep(delay)
         serialOutput.outputPixels(generatePixelArray(pixelCount, Color.BLACK))
         assertEquals(OutputStatus.Disconnected, serialOutput.deactivate())
     }
