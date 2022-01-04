@@ -7,6 +7,7 @@ import io.github.remotelight.core.output.OutputStatus
 import io.github.remotelight.core.output.OutputVerification
 import io.github.remotelight.core.output.config.OutputConfig
 import io.github.remotelight.core.output.protocol.PixelProtocol
+import io.github.remotelight.core.output.protocol.PixelProtocolSpecs
 import org.tinylog.kotlin.Logger
 
 class SerialOutput(
@@ -67,7 +68,8 @@ class SerialOutput(
     }
 
     override fun onOutputPixels(pixels: Array<Color>) {
-        val outputBuffer = protocol.processPixels(pixels)
+        val specs = PixelProtocolSpecs(config.colorOrder.isWhiteSupported && protocol.supportsRGBW())
+        val outputBuffer = protocol.processPixels(pixels, specs)
         serialPort?.write(outputBuffer, outputBuffer.size.toLong())
     }
 

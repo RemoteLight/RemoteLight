@@ -21,7 +21,7 @@ import kotlin.experimental.xor
  */
 object AdalightProtocol : PixelProtocol {
 
-    override fun processPixels(pixels: Array<Color>): ByteArray {
+    override fun processPixels(pixels: Array<Color>, specs: PixelProtocolSpecs): ByteArray {
         val outputBuffer = ByteArray(6 + pixels.size * 3)
 
         outputBuffer[0] = 'A'.code.toByte()

@@ -3,8 +3,8 @@ package io.github.remotelight.core.output.impl
 import io.github.remotelight.core.color.Color
 import io.github.remotelight.core.output.OutputStatus
 import io.github.remotelight.core.output.OutputVerification
-import io.github.remotelight.core.output.protocol.AdalightProtocol
 import io.github.remotelight.core.output.protocol.GlediatorProtocol
+import io.github.remotelight.core.output.protocol.TPM2Protocol
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -66,8 +66,8 @@ internal class SerialOutputTest : BaseOutputTest() {
     @Test
     fun pixelOutput() {
         val pixelCount = 60
-        val delay = 5L
-        val protocol = AdalightProtocol
+        val delay = 10L
+        val protocol = TPM2Protocol
         val baudRate = 115_200
         val serialOutput = SerialOutput(testOutputConfig(pixelCount), protocol)
         serialOutput.baudRate = baudRate

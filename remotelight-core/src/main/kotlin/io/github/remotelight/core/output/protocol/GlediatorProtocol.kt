@@ -18,7 +18,7 @@ import io.github.remotelight.core.color.Color
  */
 object GlediatorProtocol : PixelProtocol {
 
-    override fun processPixels(pixels: Array<Color>): ByteArray {
+    override fun processPixels(pixels: Array<Color>, specs: PixelProtocolSpecs): ByteArray {
         val outputBuffer = ByteArray(pixels.size * 3 + 1)
 
         var index = 0
