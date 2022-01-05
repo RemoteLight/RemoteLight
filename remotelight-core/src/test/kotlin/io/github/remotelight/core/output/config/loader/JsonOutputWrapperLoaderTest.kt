@@ -1,8 +1,6 @@
 package io.github.remotelight.core.output.config.loader
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.remotelight.core.config.loader.JsonPropertySource
 import io.github.remotelight.core.config.provider.JsonPropertyProvider
 import io.github.remotelight.core.di.configModule
@@ -14,7 +12,9 @@ import io.github.remotelight.core.utils.Debounce
 import kotlinx.coroutines.CoroutineScope
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.koin.core.component.get
 import org.koin.dsl.module
+import org.koin.test.junit5.AutoCloseKoinTest
 import org.koin.test.junit5.KoinTestExtension
 import java.io.File
 import java.util.*
@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-internal class JsonOutputWrapperLoaderTest {
+internal class JsonOutputWrapperLoaderTest : AutoCloseKoinTest() {
 
     @JvmField
     @RegisterExtension
@@ -40,7 +40,7 @@ internal class JsonOutputWrapperLoaderTest {
 
         val testOutputConfigs = mutableListOf<OutputConfig>()
         val testOutputConfigWrappers = MutableList(5) { index ->
-            val propertyProvider = JsonPropertyProvider(jacksonObjectMapper(), TestJsonPropertySource())
+            val propertyProvider = JsonPropertyProvider(get(), TestJsonPropertySource())
             val config = OutputConfig(
                 propertyProvider,
                 "test_output",
@@ -54,7 +54,7 @@ internal class JsonOutputWrapperLoaderTest {
         }
 
         val configLoader =
-            JsonOutputWrapperLoader(file, jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT))
+            JsonOutputWrapperLoader(file, get())
         configLoader.storeOutputWrappers(testOutputConfigWrappers)
         assertTrue(file.isFile)
 
@@ -65,7 +65,7 @@ internal class JsonOutputWrapperLoaderTest {
         assertContentEquals(testOutputConfigWrappers, loadedWrappers)
 
         val newTestOutputConfigs = loadedWrappers.map { wrapper ->
-            val propertyProvider = JsonPropertyProvider(jacksonObjectMapper(), TestJsonPropertySource(), wrapper.properties)
+            val propertyProvider = JsonPropertyProvider(get(), TestJsonPropertySource(), wrapper.properties)
             OutputConfig(
                 propertyProvider,
                 wrapper.outputIdentifier,
