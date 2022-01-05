@@ -18,4 +18,6 @@ class OutputConfig(
 
     var colorOrder: ColorOrder by property("color_order", ColorOrder.RGB)
 
+    var gammaCorrectionEnabled: Boolean by property("gamma_correction", false)
+
 }

@@ -1,6 +1,7 @@
 package io.github.remotelight.core.output
 
 import io.github.remotelight.core.color.Color
+import io.github.remotelight.core.color.GammaCorrection
 import io.github.remotelight.core.config.PropertyHolder
 import io.github.remotelight.core.output.config.OutputConfig
 import io.github.remotelight.core.utils.reactive.ObserverList
@@ -35,6 +36,11 @@ abstract class Output(val config: OutputConfig) : PropertyHolder {
     protected open fun onVerify(): OutputVerification = OutputVerification.Ok
 
     fun outputPixels(pixels: Array<Color>) {
+        if (config.gammaCorrectionEnabled) {
+            pixels.forEachIndexed { index, color ->
+                pixels[index] = GammaCorrection.applyGammaCorrection(color)
+            }
+        }
         val colorOrdered = pixels.map { it.applyColorOrder(config.colorOrder) }
         onOutputPixels(colorOrdered.toTypedArray())
     }
