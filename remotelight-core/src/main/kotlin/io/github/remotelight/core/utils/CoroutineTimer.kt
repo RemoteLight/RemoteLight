@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.takeWhile
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
@@ -20,6 +21,15 @@ class CoroutineTimer(
     private var job: Job? = null
 
     private val _framesPerSecond = MutableSharedFlow<Double>(1, 0, BufferOverflow.DROP_OLDEST)
+
+    /**
+     * Reports the FPS in the interval [fpsUpdateRate] per second.
+     * The value `-1` indicates that the timer was closed and
+     * flow collectors should be removed, e.g. using [takeWhile].
+     * ```
+     * framesPerSecond.takeWhile { it != -1.0 }
+     * ```
+     */
     val framesPerSecond = _framesPerSecond.asSharedFlow()
 
     @OptIn(ExperimentalTime::class)
@@ -60,6 +70,10 @@ class CoroutineTimer(
 
     fun stop() {
         job?.cancel()
+    }
+
+    suspend fun close() {
+        _framesPerSecond.emit(-1.0)
     }
 
     fun isRunning() = job.let { it != null && it.isActive }

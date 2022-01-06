@@ -1,5 +1,6 @@
 package io.github.remotelight.core.output.scene
 
+import io.github.remotelight.core.constants.Defaults
 import io.github.remotelight.core.di.configModule
 import io.github.remotelight.core.output.scene.loader.SceneLoader
 import io.github.remotelight.core.tools.NoDelayDebounce
@@ -50,6 +51,7 @@ internal class SceneManagerTest {
         fun createTestScene(name: String, entries: List<SceneEntry> = emptyList(), pixelCount: Int = 0) = Scene(
             UUID.randomUUID().toString(),
             name,
+            Defaults.SCENE_LOOP_INTERVAL,
             entries,
             pixelCount
         )

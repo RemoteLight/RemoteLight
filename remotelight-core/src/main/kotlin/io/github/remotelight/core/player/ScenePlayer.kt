@@ -11,25 +11,25 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.tinylog.kotlin.Logger
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class ScenePlayer(
-    private val scene: Scene,
+    val scene: Scene,
     private val outputs: List<Output>,
-    loopInterval: Duration
 ) {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    var loopInterval = loopInterval
+    var loopInterval = scene.loopInterval
         set(value) {
             field = value
-            timer.interval = value
+            scene.loopInterval = value
+            timer.interval = value.milliseconds
         }
 
     private val playbackContents = CopyOnWriteArrayList<PlaybackContent>()
 
-    private val timer = CoroutineTimer(loopInterval)
+    private val timer = CoroutineTimer(loopInterval.milliseconds)
 
     val framesPerSecond get() = timer.framesPerSecond
 
@@ -76,8 +76,6 @@ class ScenePlayer(
                 }
             }
 
-            //Logger.debug("FPS: ${timer.framesPerSecond.replayCache.lastOrNull()}")
-
             scene.outputPixels(outputs, pixelBuffer)
         }
     }
@@ -85,6 +83,7 @@ class ScenePlayer(
     suspend fun stop() {
         if (isRunning()) {
             timer.stopAndJoin()
+            timer.close()
             scope.cancel()
             playbackContents.forEach { it.onPlayerDisable() }
         }

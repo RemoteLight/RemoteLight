@@ -15,7 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.*
-import kotlin.time.Duration.Companion.milliseconds
 
 internal class ScenePlayerTest {
 
@@ -33,15 +32,16 @@ internal class ScenePlayerTest {
                 List(pixelCount) { index -> index }
             )
         }
+        val interval = 30L
         val scene = Scene(
             "test_scene",
             "Test Scene",
+            interval,
             sceneEntries,
             pixelCount
         )
 
-        val interval = 30.milliseconds
-        val player = ScenePlayer(scene, outputs, interval)
+        val player = ScenePlayer(scene, outputs)
         assertFalse(player.isRunning())
 
         val content1 = TestPlaybackContent(10, 1)

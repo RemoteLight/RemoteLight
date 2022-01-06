@@ -1,15 +1,17 @@
 package io.github.remotelight.core.output.scene
 
 import io.github.remotelight.core.color.Color
+import io.github.remotelight.core.constants.Defaults
 import io.github.remotelight.core.output.Output
-import io.github.remotelight.core.utils.formatOutputInfo
+import io.github.remotelight.core.utils.formatInfo
 import org.tinylog.kotlin.Logger
 
 data class Scene(
     val id: String,
-    val name: String,
-    val entries: List<SceneEntry>,
-    val pixelCount: Int
+    var name: String,
+    var loopInterval: Long = Defaults.SCENE_LOOP_INTERVAL,
+    var entries: List<SceneEntry>,
+    var pixelCount: Int
 ) {
 
     fun getEntryByOutputId(outputId: String) = entries.find { it.outputId == outputId }
@@ -23,7 +25,7 @@ data class Scene(
                 val mappedPixels = mapPixelsForOutput(output, pixels)
                 output.outputPixels(mappedPixels)
             } catch (e: Exception) {
-                Logger.error(e, "Something went wrong while mapping pixels for output ${output.formatOutputInfo()}.")
+                Logger.error(e, "Something went wrong while mapping pixels for output ${output.formatInfo()}.")
             }
         }
     }
