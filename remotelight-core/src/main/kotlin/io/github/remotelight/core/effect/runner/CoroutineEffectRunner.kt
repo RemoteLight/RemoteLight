@@ -1,54 +1,52 @@
 package io.github.remotelight.core.effect.runner
 
+import io.github.remotelight.core.color.Color
+import io.github.remotelight.core.color.ColorBase
 import io.github.remotelight.core.effect.Effect
 import io.github.remotelight.core.effect.StripPainter
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import org.tinylog.kotlin.Logger
-import java.util.*
 
 class CoroutineEffectRunner(
-    superVisorJob: Job,
-    override var delay: Long
+    override var delay: Long,
+    override val playbackPriority: Int = 100
 ) : EffectRunner {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined + superVisorJob)
+    private var playbackScope: CoroutineScope? = null
 
     private var runnerJob: Job? = null
 
-    private var timer: Timer? = null
+    private var pixelBuffer: Array<Color>? = null
 
-    private val _framesPerSecond = MutableSharedFlow<Double>(1, 0, BufferOverflow.DROP_OLDEST)
-    override val framesPerSecond = _framesPerSecond.asSharedFlow()
+    override fun hasContent(): Boolean = !pixelBuffer.isNullOrEmpty()
+
+    override fun produce(): Array<out ColorBase>? {
+        return pixelBuffer
+    }
+
+    override fun getDescription(): String ="Effect Runner"
+
+    override fun onPlayerEnable(playbackScope: CoroutineScope) {
+        this.playbackScope = playbackScope
+    }
+
+    override fun onPlayerDisable() {
+        runnerJob?.cancel()
+        playbackScope = null
+    }
 
     override suspend fun start(task: EffectRunnerTask) {
-        runnerJob?.cancelAndJoin()
-        timer?.cancel()
+        stop()
+        val scope = playbackScope ?: throw IllegalStateException("Playback Scope unavailable. Is the player running?")
         runnerJob = scope.launch {
             val effect = task.effect
             Logger.trace("Running effect task $task.")
             effect.onEnable(task.pixels)
             try {
-                val updateRate = 8.0
-                var frameCount = 0
-                var deltaTime = 0.0
-                var lastIterationMs = System.currentTimeMillis()
                 while (isActive) {
                     val stripPainter = task.stripPainterFactory.createStripPainter(task)
                     executeEffect(effect, stripPainter)
 
-                    frameCount++
-                    deltaTime += (System.currentTimeMillis() - lastIterationMs) / 1000.0
-                    if (deltaTime > 1.0 / updateRate) {
-                        val fps = frameCount / deltaTime
-                        _framesPerSecond.emit(fps)
-                        frameCount = 0
-                        deltaTime -= 1.0 / updateRate
-                    }
-
-                    lastIterationMs = System.currentTimeMillis()
                     delay(delay)
                 }
             } finally {
@@ -65,7 +63,6 @@ class CoroutineEffectRunner(
 
     override suspend fun stop() {
         runnerJob?.cancelAndJoin()
-        timer?.cancel()
     }
 
     override fun isRunning(): Boolean {

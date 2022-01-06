@@ -47,10 +47,11 @@ internal class SceneManagerTest {
     }
 
     companion object {
-        fun createTestScene(name: String, entries: List<SceneEntry> = emptyList()) = Scene(
+        fun createTestScene(name: String, entries: List<SceneEntry> = emptyList(), pixelCount: Int = 0) = Scene(
             UUID.randomUUID().toString(),
             name,
-            entries
+            entries,
+            pixelCount
         )
     }
 

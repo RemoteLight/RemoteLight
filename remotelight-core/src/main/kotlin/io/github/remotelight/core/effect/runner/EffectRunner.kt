@@ -1,13 +1,10 @@
 package io.github.remotelight.core.effect.runner
 
-import kotlinx.coroutines.flow.SharedFlow
+import io.github.remotelight.core.player.PlaybackContent
 
-interface EffectRunner {
+interface EffectRunner : PlaybackContent {
 
     var delay: Long
-
-    /** Reports the calculated frames per second. */
-    val framesPerSecond: SharedFlow<Double>
 
     suspend fun start(task: EffectRunnerTask)
 

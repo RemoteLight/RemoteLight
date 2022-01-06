@@ -11,7 +11,7 @@ package io.github.remotelight.core.color
  * ----W----  ----R----  ----G----  ----B----
  * ```
  */
-data class Color(val rgbw: Int) {
+data class Color(val rgbw: Int): ColorBase {
 
     constructor(
         r: Int,
