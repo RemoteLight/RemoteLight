@@ -6,6 +6,8 @@ import kotlin.properties.Delegates
 
 abstract class Effect(val config: EffectConfig) : PropertyHolder {
 
+    override val storeDefaultValue get() = config.storeDefaultValue
+
     val observableStatus = ObserverList<EffectStatus>()
     open var status: EffectStatus by Delegates.observable(EffectStatus.Stopped) { _, oldValue, newValue ->
         observableStatus.notify(oldValue, newValue)

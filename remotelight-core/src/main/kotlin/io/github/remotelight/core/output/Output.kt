@@ -9,6 +9,8 @@ import kotlin.properties.Delegates
 
 abstract class Output(val config: OutputConfig) : PropertyHolder {
 
+    override val storeDefaultValue get() = config.storeDefaultValue
+
     val observableStatus = ObserverList<OutputStatus>()
     open var status: OutputStatus by Delegates.observable(OutputStatus.Disconnected) { _, oldValue, newValue ->
         observableStatus.notify(oldValue, newValue)

@@ -18,6 +18,7 @@ dependencies {
     // Logging
     implementation "org.tinylog:tinylog-api-kotlin:$tinylog_version"
     implementation "org.tinylog:tinylog-impl:$tinylog_version"
+    implementation "org.tinylog:slf4j-tinylog:$tinylog_version"
 
     // jSerialComm
     implementation 'com.fazecast:jSerialComm:2.7.0'

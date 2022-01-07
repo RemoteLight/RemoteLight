@@ -12,6 +12,8 @@ class OutputConfig(
     val id: String
 ) : Config(propertyProvider) {
 
+    override val storeDefaultValue: Boolean = true
+
     var name: String by property("name", "")
 
     var pixels: Int by property("pixels", 0)

@@ -27,6 +27,12 @@ inline fun <reified T> Property<T>.getValue(propertyHolder: PropertyHolder) = ge
 
 inline fun <reified T> PropertyHolder.property(id: String, defaultValue: T): ReadWriteProperty<Any?, T> {
     return object : ReadWriteProperty<Any?, T> {
+        init {
+            if (storeDefaultValue) {
+                storeProperty(id, defaultValue)
+            }
+        }
+
         override fun getValue(thisRef: Any?, property: KProperty<*>) = getProperty(id, T::class.java) ?: defaultValue
 
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
@@ -51,6 +57,12 @@ fun <T> Property<T>.storeInConfig(propertyHolder: PropertyHolder): T {
  */
 inline fun <reified T> Property<T>.withConfig(config: Config): ReadWriteProperty<Any?, T> =
     object : ReadWriteProperty<Any?, T> {
+        init {
+            if (config.storeDefaultValue) {
+                config.storeProperty(id, defaultValue)
+            }
+        }
+
         override fun getValue(thisRef: Any?, property: KProperty<*>): T {
             return this@withConfig.getValue(config, T::class.java)
         }

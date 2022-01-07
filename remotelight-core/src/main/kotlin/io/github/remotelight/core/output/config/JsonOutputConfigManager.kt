@@ -51,7 +51,13 @@ class JsonOutputConfigManager(
         return createOutputConfig(outputIdentifier, id, emptyMap())
     }
 
-    private fun createOutputConfig(
+    fun createOutputConfig(outputConfigWrapper: OutputConfigWrapper<JsonNode>): OutputConfig {
+        return with(outputConfigWrapper) {
+            createOutputConfig(outputIdentifier, id, properties)
+        }
+    }
+
+    fun createOutputConfig(
         outputIdentifier: OutputIdentifier,
         id: String,
         properties: Map<String, JsonNode>

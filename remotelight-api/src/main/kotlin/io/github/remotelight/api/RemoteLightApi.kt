@@ -1,12 +1,13 @@
 package io.github.remotelight.api
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import io.github.remotelight.api.routes.registerOutputsRoutes
 import io.github.remotelight.core.RemoteLightCore
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.jackson.*
 import io.ktor.response.*
-import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
@@ -16,16 +17,24 @@ object RemoteLightApi {
 
     fun start() {
         server = embeddedServer(Netty, port = 8080) {
-            routing {
-                get("/") {
-                    call.respondText("Hello, world!")
-                }
-            }
             install(ContentNegotiation) {
                 jackson {
                     enable(SerializationFeature.INDENT_OUTPUT)
                 }
             }
+            install(CORS) {
+                anyHost()
+                method(HttpMethod.Options)
+                method(HttpMethod.Put)
+                method(HttpMethod.Patch)
+                method(HttpMethod.Delete)
+            }
+            install(StatusPages) {
+                exception<Throwable> { cause ->
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(cause))
+                }
+            }
+            registerOutputsRoutes()
         }.start(wait = false)
     }
 

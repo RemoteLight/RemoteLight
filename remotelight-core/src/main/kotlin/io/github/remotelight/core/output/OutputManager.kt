@@ -10,6 +10,10 @@ class OutputManager(
     private val outputRegistry: OutputRegistry
 ) {
 
+    companion object {
+        fun generateOutputId() = UUID.randomUUID().toString()
+    }
+
     private val outputs = mutableListOf<Output>()
 
     init {
@@ -50,6 +54,10 @@ class OutputManager(
 
     fun createAndAddOutput(outputIdentifier: OutputIdentifier): Output {
         val outputConfig = createOutputConfig(outputIdentifier)
+        return createAndAddOutput(outputConfig)
+    }
+
+    fun createAndAddOutput(outputConfig: OutputConfig): Output {
         val output = createOutput(outputConfig)
         outputs.add(output)
         Logger.info("Created a new output ${outputConfig.id} (${outputConfig.outputIdentifier}).")
@@ -59,15 +67,16 @@ class OutputManager(
 
     fun getOutputs() = outputs.toList()
 
-    fun removeOutput(id: String) {
+    fun removeOutput(id: String): Boolean {
         val output = getOutputById(id) ?: throw IllegalArgumentException("No output for ID $id found.")
-        removeOutput(output)
+        return removeOutput(output)
     }
 
-    fun removeOutput(output: Output) {
+    fun removeOutput(output: Output): Boolean {
         output.config.destroy()
-        outputs.remove(output)
+        val success = outputs.remove(output)
         onOutputRemoved()
+        return success
     }
 
     private fun createOutput(config: OutputConfig): Output {
@@ -76,7 +85,7 @@ class OutputManager(
     }
 
     private fun createOutputConfig(outputIdentifier: OutputIdentifier): OutputConfig {
-        val id = UUID.randomUUID().toString()
+        val id = generateOutputId()
         return outputConfigManager.createOutputConfig(outputIdentifier, id)
     }
 

@@ -14,6 +14,8 @@ open class Config(
         propertyProvider.onInit()
     }
 
+    override val storeDefaultValue: Boolean = false
+
     var isDestroyed = false
         private set
 

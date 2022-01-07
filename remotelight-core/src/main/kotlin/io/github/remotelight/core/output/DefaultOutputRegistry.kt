@@ -2,7 +2,9 @@ package io.github.remotelight.core.output
 
 import io.github.remotelight.core.output.config.OutputConfig
 import io.github.remotelight.core.output.impl.SerialOutput
+import io.github.remotelight.core.output.protocol.AdalightProtocol
 import io.github.remotelight.core.output.protocol.GlediatorProtocol
+import io.github.remotelight.core.output.protocol.TPM2Protocol
 
 object DefaultOutputRegistry : OutputRegistry {
 
@@ -24,9 +26,9 @@ object DefaultOutputRegistry : OutputRegistry {
     }
 
     private fun initDefaultOutputFactories() {
-        registerOutput("serial_glediator") { outputConfig ->
-            SerialOutput(outputConfig, GlediatorProtocol)
-        }
+        registerOutput("serial_glediator") { SerialOutput(it, GlediatorProtocol) }
+        registerOutput("serial_adalight") { SerialOutput(it, AdalightProtocol) }
+        registerOutput("serial_tpm2") { SerialOutput(it, TPM2Protocol) }
     }
 
 }

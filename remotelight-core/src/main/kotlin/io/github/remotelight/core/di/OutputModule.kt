@@ -11,6 +11,7 @@ import io.github.remotelight.core.output.config.JsonOutputConfigManager
 import io.github.remotelight.core.output.config.OutputConfigManager
 import io.github.remotelight.core.output.config.loader.JsonOutputWrapperLoader
 import io.github.remotelight.core.output.config.loader.OutputWrapperLoader
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 val outputModule = module {
@@ -19,7 +20,10 @@ val outputModule = module {
             FilePaths.OUTPUTS_CONFIG_PATH.toFile().mkdirsParents(), get()
         )
     }
-    single<OutputConfigManager> { JsonOutputConfigManager(get(), get()) }
+    single { JsonOutputConfigManager(get(), get()) } binds arrayOf(
+        OutputConfigManager::class,
+        JsonOutputConfigManager::class
+    )
     single { OutputManager(get(), get()) }
     single<OutputRegistry> { DefaultOutputRegistry }
 }
