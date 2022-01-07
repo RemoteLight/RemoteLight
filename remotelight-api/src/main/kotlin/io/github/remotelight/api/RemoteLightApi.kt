@@ -28,6 +28,7 @@ object RemoteLightApi {
                 method(HttpMethod.Put)
                 method(HttpMethod.Patch)
                 method(HttpMethod.Delete)
+                allowNonSimpleContentTypes = true
             }
             install(StatusPages) {
                 exception<Throwable> { cause ->

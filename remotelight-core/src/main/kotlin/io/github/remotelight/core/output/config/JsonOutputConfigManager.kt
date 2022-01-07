@@ -74,6 +74,7 @@ class JsonOutputConfigManager(
         return outputWrapperLoader.loadOutputWrappers()
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun storeOutputConfigs(outputConfigs: List<OutputConfig>) {
         debounce.debounce {
             Logger.trace("Storing ${outputConfigs.size} output configs to ${outputWrapperLoader.getSource()}...")

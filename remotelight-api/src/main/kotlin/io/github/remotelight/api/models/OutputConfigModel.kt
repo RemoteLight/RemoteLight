@@ -7,12 +7,12 @@ import io.github.remotelight.core.output.config.OutputConfigWrapper
 
 data class OutputConfigModel(
     val id: String?,
-    val properties: Map<String, JsonNode>,
+    val properties: Map<String, JsonNode>?,
     val identifier: OutputIdentifier
 )
 
 fun OutputConfigModel.toWrapper(id: String) = OutputConfigWrapper(
-    id, properties, identifier
+    id, properties ?: emptyMap(), identifier
 )
 
 @Suppress("UNCHECKED_CAST")

@@ -23,13 +23,19 @@ open class Property<T : Any?>(
 
 }
 
+inline fun <reified T> PropertyHolder.storeValueIfNotExist(id: String, value: T) {
+    if (getProperty(id, T::class.java) == null) {
+        storeProperty(id, value)
+    }
+}
+
 inline fun <reified T> Property<T>.getValue(propertyHolder: PropertyHolder) = getValue(propertyHolder, T::class.java)
 
 inline fun <reified T> PropertyHolder.property(id: String, defaultValue: T): ReadWriteProperty<Any?, T> {
     return object : ReadWriteProperty<Any?, T> {
         init {
             if (storeDefaultValue) {
-                storeProperty(id, defaultValue)
+                storeValueIfNotExist(id, defaultValue)
             }
         }
 
@@ -59,7 +65,7 @@ inline fun <reified T> Property<T>.withConfig(config: Config): ReadWriteProperty
     object : ReadWriteProperty<Any?, T> {
         init {
             if (config.storeDefaultValue) {
-                config.storeProperty(id, defaultValue)
+                config.storeValueIfNotExist(id, defaultValue)
             }
         }
 
