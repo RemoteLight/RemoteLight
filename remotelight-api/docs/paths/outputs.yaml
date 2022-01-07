@@ -1,0 +1,25 @@
+get:
+  summary: Get all outputs
+  tags:
+    - Outputs
+  responses:
+    200:
+      description: A list of all stored outputs.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../schemas/outputs/OutputResponseModel.yaml"
+post:
+  summary: Create new output
+  tags:
+    - Outputs
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/outputs/OutputRequestModel.yaml"
+  responses:
+    201:
+      $ref: "../responses/outputs/OutputResponseModel.yaml"

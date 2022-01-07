@@ -1,0 +1,12 @@
+OutputRequestModel:
+  $ref: "./outputs/OutputRequestModel.yaml"
+OutputResponseModel:
+  $ref: "./outputs/OutputResponseModel.yaml"
+OutputIdentifier:
+  $ref: "./outputs/OutputIdentifier.yaml"
+BaseOutputProperties:
+  $ref: "./outputs/BaseOutputProperties.yaml"
+SerialOutputProperties:
+  $ref: "./outputs/SerialOutputProperties.yaml"
+ColorOrder:
+  $ref: "./outputs/ColorOrder.yaml"

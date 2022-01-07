@@ -1,0 +1,5 @@
+description: Output model
+content:
+  application/json:
+    schema:
+      $ref: "../../schemas/outputs/OutputResponseModel.yaml"

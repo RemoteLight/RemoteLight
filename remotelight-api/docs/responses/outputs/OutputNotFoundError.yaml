@@ -1,0 +1,13 @@
+description: Output not found
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        exception:
+          type: string
+          nullable: true
+          example: null
+        message:
+          type: string
+          example: No output with id $id

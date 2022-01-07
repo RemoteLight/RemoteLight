@@ -1,0 +1,13 @@
+description: Missing id
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        exception:
+          type: string
+          nullable: true
+          example: null
+        message:
+          type: string
+          example: Missing or malformed id

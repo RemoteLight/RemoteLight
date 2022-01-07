@@ -1,0 +1,6 @@
+OutputMissingIdError:
+  $ref: "./outputs/OutputMissingIdError.yaml"
+OutputNotFoundError:
+  $ref: "./outputs/OutputNotFoundError.yaml"
+OutputResponseModel:
+  $ref: "./outputs/OutputResponseModel.yaml"

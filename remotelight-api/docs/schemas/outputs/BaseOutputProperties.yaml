@@ -1,0 +1,13 @@
+type: object
+properties:
+  pixels:
+    type: integer
+    example: 60
+  name:
+    type: string
+    description: User defined output name.
+    example: "My Output"
+  color_order:
+    $ref: "./ColorOrder.yaml"
+  gamma_correction:
+    type: boolean

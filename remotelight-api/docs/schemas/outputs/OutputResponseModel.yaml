@@ -1,0 +1,12 @@
+type: object
+properties:
+  id:
+    type: string
+    description: Unique UUID
+    example: "82d85de8-aed3-4e5d-8665-28efef6178fa"
+  identifier:
+    $ref: "../../schemas/outputs/OutputIdentifier.yaml"
+  properties:
+    type: object
+    oneOf:
+      - $ref: "../../schemas/outputs/SerialOutputProperties.yaml"

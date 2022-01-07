@@ -1,0 +1,36 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+get:
+  summary: Get single output
+  tags:
+    - Outputs
+  responses:
+    200:
+      $ref: "../responses/outputs/OutputResponseModel.yaml"
+    400:
+      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+    404:
+      $ref: "../responses/outputs/OutputNotFoundError.yaml"
+delete:
+  summary: Delete output
+  tags:
+    - Outputs
+  responses:
+    202:
+      description: Accepted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Output removed
+    400:
+      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+    404:
+      $ref: "../responses/outputs/OutputNotFoundError.yaml"

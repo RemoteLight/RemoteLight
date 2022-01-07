@@ -1,0 +1,5 @@
+type: string
+enum:
+  - "serial_glediator"
+  - "serial_adalight"
+  - "serial_tpm2"
