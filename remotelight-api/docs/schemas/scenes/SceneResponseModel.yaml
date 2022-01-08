@@ -1,0 +1,19 @@
+type: object
+properties:
+  id:
+    type: string
+    example: "68a4ce21-3947-49a8-afe0-31f8ed84357d"
+  name:
+    type: string
+    example: My Scene
+  loopInterval:
+    type: integer
+    format: int64
+    example: 30
+  entries:
+    type: array
+    items:
+      $ref: "./SceneEntry.yaml"
+  pixelCount:
+    type: integer
+    example: 10

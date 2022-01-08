@@ -1,0 +1,26 @@
+get:
+  summary: Get all scenes
+  tags:
+    - Scenes
+  responses:
+    200:
+      description: A list of all stored scenes.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../schemas/scenes/SceneResponseModel.yaml"
+post:
+  summary: Create new scene
+  tags:
+    - Scenes
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/scenes/SceneRequestModel.yaml"
+  responses:
+    201:
+      $ref: "../responses/scenes/SceneResponseModel.yaml"

@@ -1,10 +1,16 @@
 OutputMissingIdError:
-  $ref: "./outputs/OutputMissingIdError.yaml"
+  $ref: "./common/MissingIdError.yaml"
 OutputNotFoundError:
   $ref: "./outputs/OutputNotFoundError.yaml"
 OutputResponseModel:
   $ref: "./outputs/OutputResponseModel.yaml"
 OutputRegistryResponseModel:
   $ref: "./registries/OutputRegistryResponseModel.yaml"
+
+SceneResponseModel:
+  $ref: "./scenes/SceneResponseModel.yaml"
+SceneNotFoundError:
+  $ref: "./scenes/SceneNotFoundError.yaml"
+
 EffectRegistryResponseModel:
   $ref: "./registries/EffectRegistryResponseModel.yaml"

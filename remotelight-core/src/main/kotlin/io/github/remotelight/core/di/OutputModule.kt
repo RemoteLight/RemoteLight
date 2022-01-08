@@ -11,6 +11,9 @@ import io.github.remotelight.core.output.config.JsonOutputConfigManager
 import io.github.remotelight.core.output.config.OutputConfigManager
 import io.github.remotelight.core.output.config.loader.JsonOutputWrapperLoader
 import io.github.remotelight.core.output.config.loader.OutputWrapperLoader
+import io.github.remotelight.core.output.scene.SceneManager
+import io.github.remotelight.core.output.scene.loader.JsonSceneLoader
+import io.github.remotelight.core.output.scene.loader.SceneLoader
 import org.koin.dsl.binds
 import org.koin.dsl.module
 
@@ -26,4 +29,7 @@ val outputModule = module {
     )
     single { OutputManager(get(), get()) }
     single<OutputRegistry> { DefaultOutputRegistry }
+    // Scenes
+    factory<SceneLoader> { JsonSceneLoader(FilePaths.SCENES_FILE_PATH.toFile().mkdirsParents(), get()) }
+    single { SceneManager(get()).apply { loadScenes() } }
 }

@@ -1,0 +1,10 @@
+type: object
+properties:
+  outputId:
+    type: string
+    example: "82d85de8-aed3-4e5d-8665-28efef6178fa"
+  pixelMapping:
+    type: array
+    example: [9, 1, 2, 3, 4, 5, 6, 7, 8, 0]
+    items:
+      type: integer

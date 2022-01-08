@@ -12,7 +12,7 @@ get:
     200:
       $ref: "../responses/outputs/OutputResponseModel.yaml"
     400:
-      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+      $ref: "../responses/common/MissingIdError.yaml"
     404:
       $ref: "../responses/outputs/OutputNotFoundError.yaml"
 patch:
@@ -29,7 +29,7 @@ patch:
     200:
       $ref: "../responses/outputs/OutputResponseModel.yaml"
     400:
-      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+      $ref: "../responses/common/MissingIdError.yaml"
     404:
       $ref: "../responses/outputs/OutputNotFoundError.yaml"
 delete:
@@ -48,6 +48,6 @@ delete:
                 type: string
                 example: Output removed
     400:
-      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+      $ref: "../responses/common/MissingIdError.yaml"
     404:
       $ref: "../responses/outputs/OutputNotFoundError.yaml"

@@ -3,7 +3,6 @@ package io.github.remotelight.api.routes
 import io.github.remotelight.core.effect.EffectRegistry
 import io.github.remotelight.core.output.OutputRegistry
 import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.koin.ktor.ext.inject
@@ -15,11 +14,12 @@ fun Route.registriesRouting() {
     route("/registries") {
         get("/outputs") {
             val outputTypes = outputRegistry.getRegisteredOutputTypes()
-            call.respond(HttpStatusCode.OK, outputTypes)
+            call.respond(outputTypes)
         }
+
         get("/effects") {
             val effectTypes = effectRegistry.getRegisteredEffects()
-            call.respond(HttpStatusCode.OK, effectTypes)
+            call.respond(effectTypes)
         }
     }
 }

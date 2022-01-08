@@ -1,0 +1,5 @@
+description: Scene model
+content:
+  application/json:
+    schema:
+      $ref: "../../schemas/scenes/SceneResponseModel.yaml"

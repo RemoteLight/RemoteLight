@@ -1,0 +1,36 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+get:
+  summary: Get single scenes
+  tags:
+    - Scenes
+  responses:
+    200:
+      $ref: "../responses/scenes/SceneResponseModel.yaml"
+    400:
+      $ref: "../responses/common/MissingIdError.yaml"
+    404:
+      $ref: "../responses/scenes/SceneNotFoundError.yaml"
+delete:
+  summary: Delete scene
+  tags:
+    - Scenes
+  responses:
+    202:
+      description: Accepted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Scene removed
+    400:
+      $ref: "../responses/common/MissingIdError.yaml"
+    404:
+      $ref: "../responses/scenes/SceneNotFoundError.yaml"

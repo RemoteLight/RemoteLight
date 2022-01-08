@@ -13,3 +13,10 @@ ColorOrder:
 
 EffectCategories:
   $ref: "./effects/EffectCategories.yaml"
+
+SceneEntry:
+  $ref: "./scenes/SceneEntry.yaml"
+SceneRequestModel:
+  $ref: "./scenes/SceneRequestModel.yaml"
+SceneResponseModel:
+  $ref: "./scenes/SceneResponseModel.yaml"

@@ -16,6 +16,12 @@ paths:
     $ref: "./paths/outputs.yaml"
   /outputs/{id}:
     $ref: "./paths/output.yaml"
+
+  /scenes:
+    $ref: "./paths/scenes.yaml"
+  /scenes/{id}:
+    $ref: "./paths/scene.yaml"
+
   /registries/outputs:
     $ref: "./paths/registriesOutputs.yaml"
   /registries/effects:

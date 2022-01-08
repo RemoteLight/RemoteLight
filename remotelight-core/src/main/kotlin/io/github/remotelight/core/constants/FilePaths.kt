@@ -34,6 +34,14 @@ object FilePaths {
     val OUTPUTS_CONFIG_PATH
         get() = ROOT_PATH.separate(OUTPUTS_CONFIG_NAME)
 
+    var SCENES_FILE_NAME = "scenes.json"
+        set(value) {
+            field = throwOnInit(value)
+        }
+
+    val SCENES_FILE_PATH
+        get() = ROOT_PATH.separate(SCENES_FILE_NAME)
+
     val LOG_FILE_PATH
         get() = ROOT_PATH.separate("logs")
 

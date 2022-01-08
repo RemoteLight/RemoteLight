@@ -3,6 +3,7 @@ package io.github.remotelight.api
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.github.remotelight.api.routes.registerOutputsRoutes
 import io.github.remotelight.api.routes.registerRegistriesRoutes
+import io.github.remotelight.api.routes.registerScenesRoutes
 import io.github.remotelight.core.RemoteLightCore
 import io.ktor.application.*
 import io.ktor.features.*
@@ -38,6 +39,7 @@ object RemoteLightApi {
             }
 
             registerOutputsRoutes()
+            registerScenesRoutes()
             registerRegistriesRoutes()
         }.start(wait = false)
     }
