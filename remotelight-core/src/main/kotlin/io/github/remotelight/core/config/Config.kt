@@ -31,6 +31,12 @@ open class Config(
         return value
     }
 
+    fun updateProperties(properties: Map<String, *>) {
+        properties.forEach { newProperty ->
+            storeProperty(newProperty.key, newProperty.value)
+        }
+    }
+
     fun hasProperty(id: String): Boolean {
         requireNotDestroyed()
         return propertiesCache.contains(id) || propertyProvider.hasProperty(id)

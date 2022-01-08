@@ -5,6 +5,7 @@ plugins {
 
 application {
     mainClass = 'io.github.remotelight.api.RemoteLightApiKt'
+    applicationDefaultJvmArgs = ["-Dio.ktor.development=true"]
 }
 
 dependencies {

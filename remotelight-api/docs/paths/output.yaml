@@ -15,6 +15,23 @@ get:
       $ref: "../responses/outputs/OutputMissingIdError.yaml"
     404:
       $ref: "../responses/outputs/OutputNotFoundError.yaml"
+patch:
+  summary: Update output
+  tags:
+    - Outputs
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/outputs/OutputRequestModel.yaml"
+  responses:
+    200:
+      $ref: "../responses/outputs/OutputResponseModel.yaml"
+    400:
+      $ref: "../responses/outputs/OutputMissingIdError.yaml"
+    404:
+      $ref: "../responses/outputs/OutputNotFoundError.yaml"
 delete:
   summary: Delete output
   tags:

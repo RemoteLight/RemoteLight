@@ -16,6 +16,7 @@ post:
   tags:
     - Outputs
   requestBody:
+    required: true
     content:
       application/json:
         schema:

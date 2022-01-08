@@ -1,5 +1,6 @@
 package io.github.remotelight.api.routes
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.remotelight.api.ErrorResponse
 import io.github.remotelight.api.SuccessResponse
 import io.github.remotelight.api.models.OutputConfigModel
@@ -17,6 +18,7 @@ import org.koin.ktor.ext.inject
 fun Route.outputsRouting() {
     val outputManager by inject<OutputManager>()
     val jsonOutputConfigManager by inject<JsonOutputConfigManager>()
+    val objectMapper by inject<ObjectMapper>()
 
     route("/outputs") {
         get {
@@ -38,10 +40,40 @@ fun Route.outputsRouting() {
         }
         post {
             val outputConfigModel = call.receive<OutputConfigModel>()
+            if (outputConfigModel.id != null) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("The id must not be defined."))
+                return@post
+            }
             val id = OutputManager.generateOutputId()
             val outputConfig = jsonOutputConfigManager.createOutputConfig(outputConfigModel.toWrapper(id))
             val output = outputManager.createAndAddOutput(outputConfig)
             call.respond(HttpStatusCode.Created, output.config.toModel())
+        }
+        patch("{id}") {
+            val id = call.parameters["id"] ?: return@patch call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse("Missing or malformed id")
+            )
+            val outputConfigModel = call.receive<OutputConfigModel>()
+            if (outputConfigModel.id != null && outputConfigModel.id != id) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("The id cannot be changed."))
+                return@patch
+            }
+            val existingOutputConfig = outputManager.getOutputById(id)?.config ?: return@patch call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse("No output with id $id")
+            )
+            if (outputConfigModel.identifier != existingOutputConfig.outputIdentifier) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("The output identifier cannot be changed."))
+                return@patch
+            }
+            val properties = outputConfigModel.properties?.mapValues {
+                objectMapper.treeToValue(it.value, Any::class.java)
+            }
+            if (!properties.isNullOrEmpty()) {
+                existingOutputConfig.updateProperties(properties)
+            }
+            call.respond(HttpStatusCode.OK, existingOutputConfig.toModel())
         }
         delete("{id}") {
             val id = call.parameters["id"] ?: return@delete call.respond(

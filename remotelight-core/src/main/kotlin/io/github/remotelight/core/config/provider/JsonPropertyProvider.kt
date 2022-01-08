@@ -2,6 +2,7 @@ package io.github.remotelight.core.config.provider
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.module.kotlin.convertValue
 import io.github.remotelight.core.config.loader.JsonPropertySource
 import io.github.remotelight.core.error.EmptyConfigException
@@ -64,7 +65,23 @@ class JsonPropertyProvider(
     }
 
     override fun <T> setProperty(id: String, value: T) {
-        properties[id] = objectMapper.valueToTree(value)
+        val converted = objectMapper.valueToTree<JsonNode>(value)
+        setRawProperty(id, converted)
+    }
+
+    override fun setRawProperty(id: String, value: JsonNode) {
+        val existing = properties[id]
+        if (existing != null &&
+            existing.nodeType != JsonNodeType.NULL &&
+            value.nodeType != JsonNodeType.NULL &&
+            existing.nodeType != value.nodeType
+        ) {
+            throw IllegalArgumentException(
+                "New property value is not of the same type as the existing one. " +
+                        "${existing.nodeType} (existing) != ${value.nodeType} (new)."
+            )
+        }
+        properties[id] = value
     }
 
     override fun deleteProperty(id: String): Any? {
