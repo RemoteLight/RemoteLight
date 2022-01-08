@@ -3,6 +3,7 @@ package io.github.remotelight.api.routes
 import io.github.remotelight.api.ErrorResponse
 import io.github.remotelight.api.SuccessResponse
 import io.github.remotelight.api.models.SceneModel
+import io.github.remotelight.api.models.copyIntoScene
 import io.github.remotelight.api.models.toScene
 import io.github.remotelight.api.utils.respondIdDefined
 import io.github.remotelight.api.utils.respondMissingId
@@ -40,6 +41,21 @@ fun Route.scenesRouting() {
             val scene = sceneModel.toScene()
             sceneManager.addScene(scene)
             call.respond(HttpStatusCode.Created, scene)
+        }
+
+        patch("{id}") {
+            val id = call.parameters["id"] ?: return@patch call.respondMissingId()
+            val sceneModel = call.receive<SceneModel>()
+            if (sceneModel.id != null && sceneModel.id != id) {
+                return@patch call.respondIdDefined()
+            }
+            val existingScene = sceneManager.getScene(id) ?: return@patch call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse("No scene with id $id")
+            )
+            val scene = sceneModel.copyIntoScene(existingScene)
+            sceneManager.updateScene(scene)
+            call.respond(scene)
         }
 
         delete("{id}") {

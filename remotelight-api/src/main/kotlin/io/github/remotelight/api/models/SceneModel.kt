@@ -22,3 +22,10 @@ fun SceneModel.toScene() = Scene(
     entries ?: emptyList(),
     pixelCount ?: 0
 )
+
+fun SceneModel.copyIntoScene(scene: Scene) = scene.copy(
+    name = name ?: scene.name,
+    loopInterval = loopInterval ?: scene.loopInterval,
+    entries = entries ?: scene.entries,
+    pixelCount = pixelCount ?: scene.pixelCount
+)

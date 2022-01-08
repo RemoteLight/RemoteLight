@@ -1,4 +1,7 @@
 type: object
+required:
+  - outputId
+  - pixelMapping
 properties:
   outputId:
     type: string

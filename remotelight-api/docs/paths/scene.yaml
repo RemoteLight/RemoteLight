@@ -15,6 +15,23 @@ get:
       $ref: "../responses/common/MissingIdError.yaml"
     404:
       $ref: "../responses/scenes/SceneNotFoundError.yaml"
+patch:
+  summary: Update scene
+  tags:
+    - Scenes
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../schemas/scenes/SceneRequestModel.yaml"
+  responses:
+    200:
+      $ref: "../responses/scenes/SceneResponseModel.yaml"
+    400:
+      $ref: "../responses/common/MissingIdError.yaml"
+    404:
+      $ref: "../responses/scenes/SceneNotFoundError.yaml"
 delete:
   summary: Delete scene
   tags:

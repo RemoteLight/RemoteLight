@@ -56,6 +56,17 @@ class SceneManager(
         onSceneChanged(scene)
     }
 
+    fun updateScene(scene: Scene) {
+        val existing = getScene(scene.id) ?: throw IllegalStateException("Scene with ID ${scene.id} does not exist.")
+        existing.apply {
+            name = scene.name
+            loopInterval = scene.loopInterval
+            entries = scene.entries
+            pixelCount = scene.pixelCount
+        }
+        onSceneChanged(existing)
+    }
+
     fun removeScene(scene: Scene): Boolean {
         val success = scenes.remove(scene)
         if (success) {
