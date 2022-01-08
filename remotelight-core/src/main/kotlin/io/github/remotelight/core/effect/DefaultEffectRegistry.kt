@@ -10,6 +10,8 @@ object DefaultEffectRegistry : EffectRegistry {
         return effectFactories[effectIdentifier]?.createEffect(effectConfig)
     }
 
+    override fun getRegisteredEffects(): List<EffectIdentifier> = effectFactories.keys.toList()
+
     override fun registerEffect(effectIdentifier: EffectIdentifier, factory: EffectFactory<*>) {
         if (effectFactories.containsKey(effectIdentifier)) {
             throw IllegalArgumentException("EffectFactory for the effect type '$effectIdentifier' is already registered.")

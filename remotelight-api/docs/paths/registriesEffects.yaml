@@ -1,0 +1,8 @@
+get:
+  summary: Get registered effects
+  tags:
+   - Registries
+  responses:
+   200:
+     $ref: "../responses/registries/EffectRegistryResponseModel.yaml"
+    

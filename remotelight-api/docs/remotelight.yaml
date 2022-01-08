@@ -16,6 +16,10 @@ paths:
     $ref: "./paths/outputs.yaml"
   /outputs/{id}:
     $ref: "./paths/output.yaml"
+  /registries/outputs:
+    $ref: "./paths/registriesOutputs.yaml"
+  /registries/effects:
+    $ref: "./paths/registriesEffects.yaml"
 components:
   responses:
     $ref: "./responses/index.yaml"

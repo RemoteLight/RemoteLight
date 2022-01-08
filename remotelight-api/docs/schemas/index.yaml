@@ -10,3 +10,6 @@ SerialOutputProperties:
   $ref: "./outputs/SerialOutputProperties.yaml"
 ColorOrder:
   $ref: "./outputs/ColorOrder.yaml"
+
+EffectCategories:
+  $ref: "./effects/EffectCategories.yaml"

@@ -4,3 +4,7 @@ OutputNotFoundError:
   $ref: "./outputs/OutputNotFoundError.yaml"
 OutputResponseModel:
   $ref: "./outputs/OutputResponseModel.yaml"
+OutputRegistryResponseModel:
+  $ref: "./registries/OutputRegistryResponseModel.yaml"
+EffectRegistryResponseModel:
+  $ref: "./registries/EffectRegistryResponseModel.yaml"

@@ -1,0 +1,13 @@
+description: Effect registry response
+content:
+  application/json:
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            example: Rainbow
+          category:
+            $ref: "../../schemas/effects/EffectCategories.yaml"

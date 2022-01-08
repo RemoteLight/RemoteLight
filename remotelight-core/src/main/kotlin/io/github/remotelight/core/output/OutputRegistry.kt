@@ -6,6 +6,8 @@ interface OutputRegistry {
 
     fun createOutput(outputIdentifier: OutputIdentifier, outputConfig: OutputConfig): Output?
 
+    fun getRegisteredOutputTypes(): List<OutputIdentifier>
+
     fun registerOutput(outputIdentifier: OutputIdentifier, factory: OutputFactory<*>)
 
 }

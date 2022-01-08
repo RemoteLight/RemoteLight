@@ -1,0 +1,8 @@
+get:
+  summary: Get registered output types
+  tags:
+   - Registries
+  responses:
+   200:
+     $ref: "../responses/registries/OutputRegistryResponseModel.yaml"
+    

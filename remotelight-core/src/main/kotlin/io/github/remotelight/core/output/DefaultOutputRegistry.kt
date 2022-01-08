@@ -14,6 +14,8 @@ object DefaultOutputRegistry : OutputRegistry {
         return outputFactories[outputIdentifier]?.createOutput(outputConfig)
     }
 
+    override fun getRegisteredOutputTypes(): List<OutputIdentifier> = outputFactories.keys.toList()
+
     override fun registerOutput(outputIdentifier: OutputIdentifier, factory: OutputFactory<*>) {
         if (outputFactories.containsKey(outputIdentifier)) {
             throw IllegalArgumentException("OutputFactory for the output type '$outputIdentifier' is already registered.")
