@@ -1,0 +1,45 @@
+name: API Documentaion Deployment
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'remotelight-api/docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Change working directory for the entire job
+    defaults:
+      run:
+        working-directory: ./remotelight-api/docs
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install swagger-cli
+        run: npm install -g @apidevtools/swagger-cli
+
+      - name: Validate OpenAPI definition
+        run: swagger-cli validate remotelight.yaml
+
+      - name: Combine multiple files
+        run: swagger-cli bundle remotelight.yaml -t yaml -o ./out/remotelight.bundled.yaml
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.ACTIONS_API_TOKEN }}
+          external_repository:  RemoteLight/remotelight.github.io
+          publish_branch: master
+          publish_dir: ./out/remotelight.bundled.yaml
+          keep_files: true
+          destination_dir: ./api-docs
+          commit_message: "Update OAS file: ${{ github.event.head_commit.message }}"
