@@ -12,6 +12,7 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local Server
+
 paths:
   /outputs:
     $ref: "./paths/outputs.yaml"
@@ -27,6 +28,7 @@ paths:
     $ref: "./paths/registriesOutputs.yaml"
   /registries/effects:
     $ref: "./paths/registriesEffects.yaml"
+
 components:
   responses:
     $ref: "./responses/index.yaml"
