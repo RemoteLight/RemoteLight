@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: API Documentation Deployment
 
     # Change working directory for the entire job
     defaults:
@@ -36,7 +37,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          personal_token: ${{ secrets.ACTIONS_API_TOKEN }}
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           external_repository:  RemoteLight/remotelight.github.io
           publish_branch: master
           publish_dir: ./out/remotelight.bundled.yaml
