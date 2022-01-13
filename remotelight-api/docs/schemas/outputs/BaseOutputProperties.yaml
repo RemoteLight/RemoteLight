@@ -1,4 +1,5 @@
 type: object
+x-internal: true
 properties:
   pixels:
     type: integer
