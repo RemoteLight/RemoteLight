@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - 'remotelight-api/docs/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -40,7 +41,7 @@ jobs:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           external_repository:  RemoteLight/remotelight.github.io
           publish_branch: master
-          publish_dir: ./out
+          publish_dir: ./remotelight-api/docs/out
           keep_files: true
           destination_dir: ./api-docs
           commit_message: "[API-DOCS] ${{ github.event.head_commit.message }}"
