@@ -1,7 +1,11 @@
 openapi: 3.0.3
 info:
   title: RemoteLight API
-  description: REST API for interacting with a RemoteLight instance.
+  description: |
+    ## REST API for interacting with RemoteLight
+    RemoteLight is a Multifunctional LED Control Software for adressable LED strips.
+    This API can be used to manage outputs and scenes and control effects for a RemoteLight instance.
+    The implementation can be found on this [GitHub repository](https://github.com/RemoteLight/RemoteLight).
   license:
     name: GPL-3.0
     url: https://www.gnu.org/licenses/gpl-3.0.txt
