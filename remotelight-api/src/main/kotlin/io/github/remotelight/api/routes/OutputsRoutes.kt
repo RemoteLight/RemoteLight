@@ -67,7 +67,9 @@ fun Route.outputsRouting() {
                 )
             }
             val properties = outputConfigModel.properties?.mapValues {
-                objectMapper.treeToValue(it.value, Any::class.java)
+                val existing = existingOutputConfig.getProperties()[it.key]
+                val type = existing?.javaClass ?: Any::class.java
+                objectMapper.treeToValue(it.value, type)
             }
             if (!properties.isNullOrEmpty()) {
                 existingOutputConfig.updateProperties(properties)
