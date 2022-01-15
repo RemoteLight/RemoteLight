@@ -1,0 +1,8 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+}
+
+dependencies {
+    // RemoteLight
+    implementation project(':remotelight-core')
+}

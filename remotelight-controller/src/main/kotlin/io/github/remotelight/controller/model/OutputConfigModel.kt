@@ -1,4 +1,4 @@
-package io.github.remotelight.api.models
+package io.github.remotelight.controller.model
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.github.remotelight.core.output.OutputIdentifier

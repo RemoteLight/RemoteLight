@@ -2,6 +2,8 @@ group 'io.github.remotelight'
 version '1.0-SNAPSHOT'
 
 allprojects {
+    apply plugin: 'java'
+
     ext {
         kotlin_version = "1.6.10"
         kotlin_coroutines_version = "1.6.0"
@@ -14,5 +16,22 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    dependencies {
+        // Kotlin
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+        // DI
+        implementation "io.insert-koin:koin-core:$koin_version"
+
+        // Logging
+        implementation "org.tinylog:tinylog-api-kotlin:$tinylog_version"
+        implementation "org.tinylog:tinylog-impl:$tinylog_version"
+        implementation "org.tinylog:slf4j-tinylog:$tinylog_version"
+
+        // Serialization
+        implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+        implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
     }
 }

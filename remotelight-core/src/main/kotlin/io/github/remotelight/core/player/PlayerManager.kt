@@ -28,10 +28,10 @@ class PlayerManager(
         return player
     }
 
-    suspend fun startPlayer(sceneId: String) {
+    suspend fun startPlayer(sceneId: String, vararg content: PlaybackContent) {
         val scene = sceneManager.getScene(sceneId)
             ?: throw IllegalArgumentException("The scene with ID $sceneId does not exist.")
-        startPlayer(scene)
+        startPlayer(scene, *content)
     }
 
     suspend fun stopPlayer(sceneId: String) {

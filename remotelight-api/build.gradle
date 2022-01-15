@@ -9,9 +9,9 @@ application {
 }
 
 dependencies {
+    // RemoteLight
     implementation project(':remotelight-core')
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation project(':remotelight-controller')
 
     // Ktor
     implementation "io.ktor:ktor-server-core:$ktor_version"
@@ -19,7 +19,6 @@ dependencies {
     implementation "io.ktor:ktor-jackson:$ktor_version"
 
     // DI
-    implementation "io.insert-koin:koin-core:$koin_version"
     implementation "io.insert-koin:koin-ktor:$koin_version"
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"

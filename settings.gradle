@@ -1,3 +1,2 @@
 rootProject.name = 'remotelight'
-include 'remotelight-core', 'remotelight-desktop', 'remotelight-api'
-
+include 'remotelight-core', 'remotelight-desktop', 'remotelight-api', 'remotelight-controller'
